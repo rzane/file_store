@@ -25,7 +25,7 @@ defmodule FileStore.Adapters.Test do
   end
 
   @impl true
-  def get_public_url(_store, key, _opts \\ []), do: {:ok, key}
+  def get_public_url(_store, key, _opts \\ []), do: key
 
   @impl true
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}

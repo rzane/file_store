@@ -18,7 +18,7 @@ defmodule FileStore.Adapters.DiskTest do
   end
 
   test "get_public_url/2", %{store: store} do
-    assert Adapter.get_public_url(store, @key) == {:ok, @url}
+    assert Adapter.get_public_url(store, @key) == @url
   end
 
   test "get_signed_url/2", %{store: store} do

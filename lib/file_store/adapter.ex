@@ -9,8 +9,8 @@ defmodule FileStore.Adapter do
   @callback write(store(), key(), iodata()) :: :ok | :error
 
   @callback copy(store(), path(), key()) :: :ok | :error
-  @callback get_public_url(store(), key()) :: {:ok, binary()} | :error
-  @callback get_public_url(store(), key(), Keyword.t()) :: {:ok, binary()} | :error
+  @callback get_public_url(store(), key()) :: binary()
+  @callback get_public_url(store(), key(), Keyword.t()) :: binary()
   @callback get_signed_url(store(), key()) :: {:ok, binary()} | :error
   @callback get_signed_url(store(), key(), Keyword.t()) :: {:ok, binary()} | :error
 end

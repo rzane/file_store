@@ -32,6 +32,6 @@ defmodule FileStore do
 
   @impl true
   def get_signed_url(store, key, opts \\ []) do
-    store.adapter.get_public_url(store, key, opts)
+    store.adapter.get_signed_url(store, key, opts)
   end
 end

@@ -5,12 +5,12 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def get_public_url(store, key, _opts \\ []) do
-    {:ok, store |> get_base_url() |> URI.merge(key) |> URI.to_string()}
+    store |> get_base_url() |> URI.merge(key) |> URI.to_string()
   end
 
   @impl true
   def get_signed_url(store, key, _opts \\ []) do
-    get_public_url(store, key)
+    {:ok, get_public_url(store, key)}
   end
 
   @impl true

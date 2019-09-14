@@ -13,7 +13,7 @@ defmodule FileStore.Adapters.TestTest do
   end
 
   test "get_public_url/2" do
-    assert Adapter.get_public_url(@store, @key) == {:ok, @key}
+    assert Adapter.get_public_url(@store, @key) == @key
   end
 
   test "get_signed_url/2" do
