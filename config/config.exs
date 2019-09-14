@@ -2,6 +2,18 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :ex_aws,
+  access_key_id: "foo",
+  secret_access_key: "bar"
+
+config :ex_aws, :retries, max_attempts: 1
+
+config :ex_aws, :s3,
+  scheme: "http://",
+  host: "localhost",
+  port: 4569,
+  region: "us-east-1"
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

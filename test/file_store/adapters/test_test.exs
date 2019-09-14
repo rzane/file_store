@@ -3,8 +3,8 @@ defmodule FileStore.Adapters.TestTest do
   alias FileStore.Adapters.Test, as: Adapter
 
   @key "test"
-  @path "test/fixtures/test.txt"
   @content "blah"
+  @path "test/fixtures/test.txt"
   @store FileStore.new(adapter: Adapter)
 
   setup do
