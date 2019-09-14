@@ -17,7 +17,7 @@ defmodule FileStore do
 
   @impl true
   def copy(store, path, key) do
-    store.adapter.write(store, path, key)
+    store.adapter.copy(store, path, key)
   end
 
   @impl true

@@ -1,16 +1,37 @@
 defmodule FileStoreTest do
   use ExUnit.Case
-  doctest FileStore
+  alias FileStore.Adapters.Test, as: Adapter
 
-  @adapter FileStore.Adapters.Null
-  @store FileStore.new(adapter: @adapter, foo: "bar")
+  @key "test"
+  @path "test/fixtures/test.txt"
+  @content "blah"
+  @store FileStore.new(adapter: Adapter, foo: "bar")
+
+  setup do
+    start_supervised!(Adapter)
+    :ok
+  end
 
   test "new/1" do
-    assert @store.adapter == @adapter
+    assert @store.adapter == Adapter
     assert @store.config.foo == "bar"
   end
 
-  test "write/1" do
-    assert FileStore.write(@store, "foo", "bar") == :ok
+  test "get_public_url/2" do
+    assert FileStore.get_public_url(@store, @key) == {:ok, @key}
+  end
+
+  test "get_signed_url/2" do
+    assert FileStore.get_signed_url(@store, @key) == {:ok, @key}
+  end
+
+  test "copy/3" do
+    assert :ok = FileStore.copy(@store, @path, @key)
+    assert @key in Adapter.list_keys()
+  end
+
+  test "write/3" do
+    assert :ok = FileStore.write(@store, @key, @content)
+    assert @key in Adapter.list_keys()
   end
 end

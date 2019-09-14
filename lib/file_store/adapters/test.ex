@@ -18,17 +18,10 @@ defmodule FileStore.Adapters.Test do
   end
 
   @doc """
-  Get all files.
+  List all keys that have been uploaded.
   """
-  def get_files do
-    Agent.get(__MODULE__, fn state -> state end)
-  end
-
-  @doc """
-  Add an file to the state.
-  """
-  def put_file(key) do
-    Agent.update(__MODULE__, fn state -> state ++ [key] end)
+  def list_keys do
+    Agent.get(__MODULE__, fn keys -> keys end)
   end
 
   @impl true
@@ -38,14 +31,12 @@ defmodule FileStore.Adapters.Test do
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
 
   @impl true
-  def copy(_store, _source, key) do
-    put_file(key)
-    :ok
-  end
+  def copy(_store, _source, key), do: put_key(key)
 
   @impl true
-  def write(_store, key, _content) do
-    put_file(key)
-    :ok
+  def write(_store, key, _content), do: put_key(key)
+
+  defp put_key(key) do
+    Agent.update(__MODULE__, fn keys -> keys ++ [key] end)
   end
 end
