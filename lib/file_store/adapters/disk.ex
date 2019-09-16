@@ -65,6 +65,8 @@ defmodule FileStore.Adapters.Disk do
   end
 
   defp get_storage_path(store) do
-    Map.get_lazy(store.config, :storage_path, &File.cwd!/0)
+    Map.get_lazy(store.config, :storage_path, fn ->
+      Path.join(File.cwd!(), "storage")
+    end)
   end
 end
