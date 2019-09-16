@@ -25,8 +25,8 @@ defmodule FileStore.Adapters.DiskTest do
     assert Adapter.get_signed_url(store, @key) == {:ok, @url}
   end
 
-  test "copy/3", %{store: store, tmp: tmp} do
-    assert :ok = Adapter.copy(store, @path, @key)
+  test "upload/3", %{store: store, tmp: tmp} do
+    assert :ok = Adapter.upload(store, @path, @key)
     assert File.exists?(Path.join(tmp, @key))
   end
 

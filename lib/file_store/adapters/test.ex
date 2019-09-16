@@ -31,7 +31,7 @@ defmodule FileStore.Adapters.Test do
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
 
   @impl true
-  def copy(_store, _source, key), do: put_key(key)
+  def upload(_store, _source, key), do: put_key(key)
 
   @impl true
   def write(_store, key, _content), do: put_key(key)

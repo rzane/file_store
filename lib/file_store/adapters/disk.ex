@@ -14,7 +14,7 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
-  def copy(store, source, key) do
+  def upload(store, source, key) do
     with {:ok, storage_path} <- ensure_storage_path(store) do
       destination = Path.join(storage_path, key)
 

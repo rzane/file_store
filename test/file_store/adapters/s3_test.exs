@@ -29,9 +29,9 @@ defmodule FileStore.Adapters.S3Test do
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
-  test "copy/3" do
+  test "upload/3" do
     assert {:ok, _} = prepare_bucket()
-    assert :ok = Adapter.copy(@store, @path, @key)
+    assert :ok = Adapter.upload(@store, @path, @key)
     assert {:ok, _} = get_object(@key)
   end
 

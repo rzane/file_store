@@ -42,7 +42,7 @@ if Code.ensure_compiled?(ExAws.S3) do
     end
 
     @impl true
-    def copy(store, path, key) do
+    def upload(store, path, key) do
       path
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(get_bucket(store), key)

@@ -8,7 +8,7 @@ defmodule FileStore.Adapters.Null do
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
 
   @impl true
-  def copy(_store, _source, _key), do: :ok
+  def upload(_store, _source, _key), do: :ok
 
   @impl true
   def write(_store, _key, _content), do: :ok

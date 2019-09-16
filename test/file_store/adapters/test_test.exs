@@ -20,8 +20,8 @@ defmodule FileStore.Adapters.TestTest do
     assert Adapter.get_signed_url(@store, @key) == {:ok, @key}
   end
 
-  test "copy/3" do
-    assert :ok = Adapter.copy(@store, @path, @key)
+  test "upload/3" do
+    assert :ok = Adapter.upload(@store, @path, @key)
     assert @key in Adapter.list_keys()
   end
 
