@@ -14,6 +14,19 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
+  def write(store, key, content) do
+    with {:ok, storage_path} <- ensure_storage_path(store) do
+      storage_path
+      |> Path.join(key)
+      |> File.write(content)
+      |> case do
+        :ok -> :ok
+        _error -> :error
+      end
+    end
+  end
+
+  @impl true
   def upload(store, source, key) do
     with {:ok, storage_path} <- ensure_storage_path(store) do
       destination = Path.join(storage_path, key)
@@ -26,12 +39,13 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
-  def write(store, key, content) do
+  def download(store, key, destination) do
     with {:ok, storage_path} <- ensure_storage_path(store) do
-      destination = Path.join(storage_path, key)
-
-      case File.write(destination, content) do
-        :ok -> :ok
+      storage_path
+      |> Path.join(key)
+      |> File.copy(destination)
+      |> case do
+        {:ok, _} -> :ok
         _error -> :error
       end
     end

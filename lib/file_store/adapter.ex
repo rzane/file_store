@@ -14,6 +14,11 @@ defmodule FileStore.Adapter do
   @callback upload(store(), path(), key()) :: :ok | :error
 
   @doc """
+  Downloads a file from the store.
+  """
+  @callback download(store(), key(), path()) :: :ok | :error
+
+  @doc """
   See `FileStore.Adapter.get_public_url/3`.
   """
   @callback get_public_url(store(), key()) :: binary()

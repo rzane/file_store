@@ -9,6 +9,7 @@ defmodule FileStore.Adapters.S3Test do
   @path "test/fixtures/test.txt"
   @store FileStore.new(adapter: Adapter, bucket: @bucket)
   @url "https://filestore.s3-us-east-1.amazonaws.com/test"
+  @download Path.join(System.tmp_dir!(), "s3-download")
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
@@ -29,16 +30,25 @@ defmodule FileStore.Adapters.S3Test do
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
+  test "write/3" do
+    assert {:ok, _} = prepare_bucket()
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert {:ok, _} = get_object(@key)
+  end
+
   test "upload/3" do
     assert {:ok, _} = prepare_bucket()
     assert :ok = Adapter.upload(@store, @path, @key)
     assert {:ok, _} = get_object(@key)
   end
 
-  test "write/3" do
+  test "download/3" do
+    File.rm_rf!(@download)
+
     assert {:ok, _} = prepare_bucket()
-    assert :ok = Adapter.write(@store, @key, @content)
-    assert {:ok, _} = get_object(@key)
+    assert :ok = Adapter.upload(@store, @path, @key)
+    assert :ok = Adapter.download(@store, @key, @download)
+    assert File.exists?(@download)
   end
 
   defp get_query(url, param) do

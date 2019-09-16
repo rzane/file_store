@@ -10,19 +10,24 @@ defmodule FileStore do
   defstruct adapter: nil, config: %{}
 
   def new(opts) do
-    {adapter, opts} = Keyword.pop(opts, :adapter)
+    {adapter, opts} = Keyword.pop(opts, :adapter, FileStore.Adapters.Null)
     config = Enum.into(opts, %{})
     %__MODULE__{adapter: adapter, config: config}
   end
 
   @impl true
-  def upload(store, path, key) do
-    store.adapter.upload(store, path, key)
+  def write(store, key, content) do
+    store.adapter.write(store, key, content)
   end
 
   @impl true
-  def write(store, key, content) do
-    store.adapter.write(store, key, content)
+  def upload(store, source, key) do
+    store.adapter.upload(store, source, key)
+  end
+
+  @impl true
+  def download(store, key, destionation) do
+    store.adapter.download(store, key, destionation)
   end
 
   @impl true

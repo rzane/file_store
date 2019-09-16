@@ -42,8 +42,20 @@ if Code.ensure_compiled?(ExAws.S3) do
     end
 
     @impl true
-    def upload(store, path, key) do
-      path
+    def write(store, key, content) do
+      store
+      |> get_bucket()
+      |> ExAws.S3.put_object(key, content)
+      |> ExAws.request()
+      |> case do
+        {:ok, _} -> :ok
+        _error -> :error
+      end
+    end
+
+    @impl true
+    def upload(store, source, key) do
+      source
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(get_bucket(store), key)
       |> ExAws.request()
@@ -54,10 +66,10 @@ if Code.ensure_compiled?(ExAws.S3) do
     end
 
     @impl true
-    def write(store, key, content) do
+    def download(store, key, destionation) do
       store
       |> get_bucket()
-      |> ExAws.S3.put_object(key, content)
+      |> ExAws.S3.download_file(key, destionation)
       |> ExAws.request()
       |> case do
         {:ok, _} -> :ok

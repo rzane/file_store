@@ -11,5 +11,8 @@ defmodule FileStore.Adapters.Null do
   def upload(_store, _source, _key), do: :ok
 
   @impl true
+  def download(_store, _key, _destination), do: :ok
+
+  @impl true
   def write(_store, _key, _content), do: :ok
 end
