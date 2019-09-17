@@ -31,7 +31,7 @@ defmodule FileStore.Adapters.TestTest do
   end
 
   test "download/3" do
-    assert :error = Adapter.download(@store, @key, "foo")
+    assert {:error, :enoent} = Adapter.download(@store, @key, "foo")
 
     assert :ok = Adapter.upload(@store, @path, @key)
     assert :ok = Adapter.download(@store, @key, "foo")

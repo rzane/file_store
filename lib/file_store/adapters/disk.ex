@@ -15,58 +15,44 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def write(store, key, content) do
-    with {:ok, storage_path} <- ensure_storage_path(store) do
-      storage_path
-      |> Path.join(key)
-      |> File.write(content)
-      |> case do
-        :ok -> :ok
-        _error -> :error
-      end
+    with {:ok, path} <- expand(store, key) do
+      File.write(path, content)
     end
   end
 
   @impl true
   def upload(store, source, key) do
-    with {:ok, storage_path} <- ensure_storage_path(store) do
-      destination = Path.join(storage_path, key)
-
-      case File.copy(source, destination) do
-        {:ok, _} -> :ok
-        _error -> :error
-      end
-    end
+    with {:ok, dest} <- expand(store, key),
+         {:ok, _} <- File.copy(source, dest),
+         do: :ok
   end
 
   @impl true
-  def download(store, key, destination) do
-    with {:ok, storage_path} <- ensure_storage_path(store) do
-      storage_path
-      |> Path.join(key)
-      |> File.copy(destination)
-      |> case do
-        {:ok, _} -> :ok
-        _error -> :error
-      end
-    end
+  def download(store, key, dest) do
+    with {:ok, source} <- expand(store, key),
+         {:ok, _} <- File.copy(source, dest),
+         do: :ok
   end
 
-  defp ensure_storage_path(store) do
-    storage_path = get_storage_path(store)
+  defp expand(store, key) do
+    with {:ok, storage_path} <- get_storage_path(store),
+         :ok <- File.mkdir_p(storage_path),
+         do: {:ok, Path.join(storage_path, key)}
+  end
 
-    case File.mkdir_p(storage_path) do
-      :ok -> {:ok, storage_path}
-      _ -> :error
+  defp get_storage_path(store) do
+    case Map.fetch(store.config, :storage_path) do
+      {:ok, path} ->
+        {:ok, path}
+
+      :error ->
+        with {:ok, cwd} <- File.cwd() do
+          {:ok, Path.join(cwd, "storage")}
+        end
     end
   end
 
   defp get_base_url(store) do
     Map.get(store.config, :base_url, @default_base_url)
-  end
-
-  defp get_storage_path(store) do
-    Map.get_lazy(store.config, :storage_path, fn ->
-      Path.join(File.cwd!(), "storage")
-    end)
   end
 end

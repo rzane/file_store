@@ -45,7 +45,7 @@ defmodule FileStore.Adapters.Test do
 
   @impl true
   def download(_store, key, _destionation) do
-    if has_key?(key), do: :ok, else: :error
+    if has_key?(key), do: :ok, else: {:error, :enoent}
   end
 
   defp put_key(key) do

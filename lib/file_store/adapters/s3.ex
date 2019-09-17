@@ -35,10 +35,6 @@ if Code.ensure_compiled?(ExAws.S3) do
       store
       |> get_config()
       |> ExAws.S3.presigned_url(:get, get_bucket(store), key, opts)
-      |> case do
-        {:ok, url} -> {:ok, url}
-        _error -> :error
-      end
     end
 
     @impl true
@@ -46,11 +42,7 @@ if Code.ensure_compiled?(ExAws.S3) do
       store
       |> get_bucket()
       |> ExAws.S3.put_object(key, content)
-      |> ExAws.request()
-      |> case do
-        {:ok, _} -> :ok
-        _error -> :error
-      end
+      |> request(store)
     end
 
     @impl true
@@ -58,11 +50,7 @@ if Code.ensure_compiled?(ExAws.S3) do
       source
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(get_bucket(store), key)
-      |> ExAws.request()
-      |> case do
-        {:ok, _} -> :ok
-        _error -> :error
-      end
+      |> request(store)
     end
 
     @impl true
@@ -70,26 +58,25 @@ if Code.ensure_compiled?(ExAws.S3) do
       store
       |> get_bucket()
       |> ExAws.S3.download_file(key, destionation)
-      |> ExAws.request()
-      |> case do
+      |> request(store)
+    end
+
+    defp request(op, store) do
+      case ExAws.request(op, get_overrides(store)) do
         {:ok, _} -> :ok
-        _error -> :error
+        {:error, reason} -> {:error, reason}
       end
     end
 
     defp get_base_url(store) do
       Map.get_lazy(store, :base_url, fn ->
-        bucket = get_bucket(store)
-        region = get_region(store)
-        "https://#{bucket}.s3-#{region}.amazonaws.com"
+        "https://#{get_bucket(store)}.s3-#{get_region(store)}.amazonaws.com"
       end)
     end
 
     defp get_bucket(store), do: Map.fetch!(store.config, :bucket)
     defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
-
-    defp get_config(store) do
-      ExAws.Config.new(:s3, Map.get(store.config, :ex_aws, []))
-    end
+    defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
+    defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
   end
 end
