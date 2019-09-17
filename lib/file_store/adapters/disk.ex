@@ -5,6 +5,12 @@ defmodule FileStore.Adapters.Disk do
 
   @default_base_url "http://localhost:4000/uploads/"
 
+  @spec get_path(FileStore.t(), binary()) :: {:ok, Path.t()} | {:error, File.posix()}
+  def get_path(store, key) do
+    with {:ok, storage_path} <- get_storage_path(store),
+         do: {:ok, Path.join(storage_path, key)}
+  end
+
   @impl true
   def get_public_url(store, key, _opts \\ []) do
     store |> get_base_url() |> URI.merge(key) |> URI.to_string()
@@ -48,8 +54,10 @@ defmodule FileStore.Adapters.Disk do
 
   defp expand(store, key) do
     with {:ok, storage_path} <- get_storage_path(store),
-         :ok <- File.mkdir_p(storage_path),
-         do: {:ok, Path.join(storage_path, key)}
+         path <- Path.join(storage_path, key),
+         dir <- Path.dirname(path),
+         :ok <- File.mkdir_p(dir),
+         do: {:ok, path}
   end
 
   defp get_storage_path(store) do
