@@ -54,10 +54,10 @@ if Code.ensure_compiled?(ExAws.S3) do
     end
 
     @impl true
-    def download(store, key, destionation) do
+    def download(store, key, destination) do
       store
       |> get_bucket()
-      |> ExAws.S3.download_file(key, destionation)
+      |> ExAws.S3.download_file(key, destination)
       |> request(store)
     end
 

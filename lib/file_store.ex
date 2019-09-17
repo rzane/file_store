@@ -26,8 +26,8 @@ defmodule FileStore do
   end
 
   @impl true
-  def download(store, key, destionation) do
-    store.adapter.download(store, key, destionation)
+  def download(store, key, destination) do
+    store.adapter.download(store, key, destination)
   end
 
   @impl true

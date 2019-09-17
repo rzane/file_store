@@ -44,7 +44,7 @@ defmodule FileStore.Adapters.Test do
   def upload(_store, _source, key), do: put_key(key)
 
   @impl true
-  def download(_store, key, _destionation) do
+  def download(_store, key, _destination) do
     if has_key?(key), do: :ok, else: {:error, :enoent}
   end
 
