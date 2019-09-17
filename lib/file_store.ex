@@ -31,6 +31,11 @@ defmodule FileStore do
   end
 
   @impl true
+  def stat(store, key) do
+    store.adapter.stat(store, key)
+  end
+
+  @impl true
   def get_public_url(store, key, opts \\ []) do
     store.adapter.get_public_url(store, key, opts)
   end

@@ -27,4 +27,9 @@ defmodule FileStore.Adapters.NullTest do
   test "download/3" do
     assert :ok = Adapter.download(@store, @key, @download)
   end
+
+  test "stat/2" do
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert Adapter.stat(@store, @key) == {:ok, %FileStore.Stat{key: @key}}
+  end
 end

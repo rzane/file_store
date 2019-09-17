@@ -2,6 +2,7 @@ defmodule FileStore.Adapters.Test do
   @behaviour FileStore.Adapter
 
   use Agent
+  alias FileStore.Stat
 
   @doc """
   Starts and agent for the test adapter.
@@ -36,6 +37,15 @@ defmodule FileStore.Adapters.Test do
 
   @impl true
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
+
+  @impl true
+  def stat(_store, key) do
+    if has_key?(key) do
+      {:ok, %Stat{key: key}}
+    else
+      {:error, :enoent}
+    end
+  end
 
   @impl true
   def write(_store, key, _content), do: put_key(key)

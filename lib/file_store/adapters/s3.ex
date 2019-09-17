@@ -20,6 +20,8 @@ if Code.ensure_compiled?(ExAws.S3) do
 
     """
 
+    alias FileStore.Stat
+
     @behaviour FileStore.Adapter
 
     @impl true
@@ -35,6 +37,24 @@ if Code.ensure_compiled?(ExAws.S3) do
       store
       |> get_config()
       |> ExAws.S3.presigned_url(:get, get_bucket(store), key, opts)
+    end
+
+    @impl true
+    def stat(store, key) do
+      store
+      |> get_bucket()
+      |> ExAws.S3.head_object(key)
+      |> ExAws.request()
+      |> case do
+        {:ok, %{headers: headers}} ->
+          headers = Enum.into(headers, %{})
+          etag = headers |> Map.get("ETag") |> unwrap_etag()
+          size = headers |> Map.get("Content-Length") |> to_integer()
+          {:ok, %Stat{key: key, etag: etag, size: size}}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
     end
 
     @impl true
@@ -78,5 +98,17 @@ if Code.ensure_compiled?(ExAws.S3) do
     defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
     defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
+
+    defp unwrap_etag(nil), do: nil
+    defp unwrap_etag(etag), do: String.trim(etag, ~s("))
+
+    defp to_integer(nil), do: nil
+
+    defp to_integer(value) when is_binary(value) do
+      {value, _} = Integer.parse(value)
+      value
+    end
+
+    defp to_integer(value), do: value
   end
 end

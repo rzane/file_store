@@ -1,5 +1,6 @@
 defmodule FileStore.Adapters.S3Test do
   use ExUnit.Case
+  alias FileStore.Stat
   alias FileStore.Adapters.S3, as: Adapter
 
   @key "test"
@@ -7,9 +8,10 @@ defmodule FileStore.Adapters.S3Test do
   @region "us-east-1"
   @bucket "filestore"
   @path "test/fixtures/test.txt"
-  @store FileStore.new(adapter: Adapter, bucket: @bucket)
+  @etag "6f1ed002ab5595859014ebf0951522d9"
   @url "https://filestore.s3-us-east-1.amazonaws.com/test"
   @download Path.join(System.tmp_dir!(), "s3-download")
+  @store FileStore.new(adapter: Adapter, bucket: @bucket)
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
@@ -49,6 +51,12 @@ defmodule FileStore.Adapters.S3Test do
     assert :ok = Adapter.upload(@store, @path, @key)
     assert :ok = Adapter.download(@store, @key, @download)
     assert File.exists?(@download)
+  end
+
+  test "stat/2" do
+    assert {:ok, _} = prepare_bucket()
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert Adapter.stat(@store, @key) == {:ok, %Stat{key: @key, etag: @etag, size: 4}}
   end
 
   defp get_query(url, param) do

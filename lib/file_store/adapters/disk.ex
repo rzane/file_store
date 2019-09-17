@@ -1,4 +1,6 @@
 defmodule FileStore.Adapters.Disk do
+  alias FileStore.Stat
+
   @behaviour FileStore.Adapter
 
   @default_base_url "http://localhost:4000/uploads/"
@@ -11,6 +13,16 @@ defmodule FileStore.Adapters.Disk do
   @impl true
   def get_signed_url(store, key, _opts \\ []) do
     {:ok, get_public_url(store, key)}
+  end
+
+  @impl true
+  def stat(store, key) do
+    with {:ok, storage_path} <- get_storage_path(store),
+         path <- Path.join(storage_path, key),
+         {:ok, stat} <- File.stat(path),
+         {:ok, etag} <- FileStore.Stat.compute_checksum(path) do
+      {:ok, %Stat{key: key, size: stat.size, etag: etag}}
+    end
   end
 
   @impl true

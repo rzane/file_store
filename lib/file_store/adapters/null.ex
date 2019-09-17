@@ -1,4 +1,6 @@
 defmodule FileStore.Adapters.Null do
+  alias FileStore.Stat
+
   @behaviour FileStore.Adapter
 
   @impl true
@@ -6,6 +8,9 @@ defmodule FileStore.Adapters.Null do
 
   @impl true
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
+
+  @impl true
+  def stat(_store, key), do: {:ok, %Stat{key: key}}
 
   @impl true
   def upload(_store, _source, _key), do: :ok

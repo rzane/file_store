@@ -1,4 +1,6 @@
 defmodule FileStore.Adapter do
+  alias FileStore.Stat
+
   @type store() :: FileStore.t()
   @type key() :: binary()
   @type path() :: Path.t()
@@ -17,6 +19,11 @@ defmodule FileStore.Adapter do
   Downloads a file from the store.
   """
   @callback download(store(), key(), path()) :: :ok | {:error, term()}
+
+  @doc """
+  Retrieves information about a file from the store.
+  """
+  @callback stat(store(), key()) :: {:ok, Stat.t()} | {:error, term()}
 
   @doc """
   See `FileStore.Adapter.get_public_url/3`.

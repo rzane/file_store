@@ -1,5 +1,6 @@
 defmodule FileStore.Adapters.TestTest do
   use ExUnit.Case
+  alias FileStore.Stat
   alias FileStore.Adapters.Test, as: Adapter
 
   @key "test"
@@ -33,7 +34,14 @@ defmodule FileStore.Adapters.TestTest do
   test "download/3" do
     assert {:error, :enoent} = Adapter.download(@store, @key, "foo")
 
-    assert :ok = Adapter.upload(@store, @path, @key)
+    assert :ok = Adapter.write(@store, @key, @content)
     assert :ok = Adapter.download(@store, @key, "foo")
+  end
+
+  test "stat/2" do
+    assert {:error, :enoent} = Adapter.stat(@store, @key)
+
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert Adapter.stat(@store, @key) == {:ok, %Stat{key: @key}}
   end
 end
