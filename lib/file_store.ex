@@ -33,7 +33,7 @@ defmodule FileStore do
     quote location: :keep do
       @spec new() :: FileStore.t()
       def new do
-        case Application.fetch_env(unquote(otp_app), __MODULE__, []) do
+        case Application.fetch_env(unquote(otp_app), __MODULE__) do
           {:ok, {mod, fun}} ->
             apply(mod, fun, [unquote(opts)])
 
