@@ -33,8 +33,18 @@ defmodule FileStore do
     quote location: :keep do
       @spec new() :: FileStore.t()
       def new do
-        config = Application.get_env(unquote(otp_app), __MODULE__, [])
-        unquote(opts) |> Keyword.merge(config) |> FileStore.new()
+        case Application.fetch_env(unquote(otp_app), __MODULE__, []) do
+          {:ok, {mod, fun}} ->
+            apply(mod, fun, [unquote(opts)])
+
+          {:ok, config} ->
+            unquote(opts)
+            |> Keyword.merge(config)
+            |> FileStore.new()
+
+          :error ->
+            FileStore.new(unquote(opts))
+        end
       end
 
       @spec stat(binary()) :: {:ok, FileStore.Stat.t()} | {:error, term()}
