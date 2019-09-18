@@ -58,9 +58,10 @@ defmodule FileStore do
   end
 
   def new(opts) do
-    {adapter, opts} = Keyword.pop(opts, :adapter, FileStore.Adapters.Null)
-    config = Enum.into(opts, %{})
-    %__MODULE__{adapter: adapter, config: config}
+    %__MODULE__{
+      adapter: Keyword.fetch!(opts, :adapter),
+      config: opts |> Keyword.delete(:adapter) |> Enum.into(%{})
+    }
   end
 
   @impl true
