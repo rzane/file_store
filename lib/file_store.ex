@@ -28,14 +28,13 @@ defmodule FileStore do
 
   """
   defmacro __using__(opts) do
-    otp_app = Keyword.fetch!(opts, :otp_app)
+    {otp_app, opts} = Keyword.pop(opts, :otp_app)
 
     quote location: :keep do
       @spec new() :: FileStore.t()
       def new do
-        unquote(otp_app)
-        |> Application.get_env(__MODULE__, [])
-        |> FileStore.new()
+        config = Application.get_env(unquote(otp_app), __MODULE__, [])
+        unquote(opts) |> Keyword.merge(config) |> FileStore.new()
       end
 
       @spec stat(binary()) :: {:ok, FileStore.Stat.t()} | {:error, term()}
