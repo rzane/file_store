@@ -9,18 +9,31 @@ defmodule FileStore.Stat do
         }
 
   @doc """
-  Compute the MD5 checksum of a file on disk.
+  Compute the MD5 checksum.
   """
-  @spec compute_checksum(Path.t()) :: {:ok, binary()} | {:error, %File.Error{}}
-  def compute_checksum(path) do
-    path
-    |> File.stream!([], 2_048)
+  @spec checksum(binary() | Enum.t()) :: binary()
+  def checksum(data) when is_binary(data) do
+    :md5
+    |> :crypto.hash(data)
+    |> Base.encode16()
+    |> String.downcase()
+  end
+
+  def checksum(data) do
+    data
     |> Enum.reduce(:crypto.hash_init(:md5), &:crypto.hash_update(&2, &1))
     |> :crypto.hash_final()
     |> Base.encode16()
     |> String.downcase()
-    |> (fn v -> {:ok, v} end).()
+  end
+
+  @doc """
+  Compute the MD5 checksum of a file on disk.
+  """
+  @spec checksum_file(Path.t()) :: {:ok, binary()} | {:error, File.posix()}
+  def checksum_file(path) do
+    {:ok, path |> File.stream!() |> checksum()}
   rescue
-    error in [File.Error] -> {:error, error}
+    e in [File.Error] -> {:error, e.reason}
   end
 end

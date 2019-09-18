@@ -26,7 +26,7 @@ defmodule FileStore.Adapters.Disk do
     with {:ok, storage_path} <- get_storage_path(store),
          path <- Path.join(storage_path, key),
          {:ok, stat} <- File.stat(path),
-         {:ok, etag} <- FileStore.Stat.compute_checksum(path) do
+         {:ok, etag} <- FileStore.Stat.checksum_file(path) do
       {:ok, %Stat{key: key, size: stat.size, etag: etag}}
     end
   end
