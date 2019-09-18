@@ -32,7 +32,7 @@ defmodule FileStore.Stat do
   """
   @spec checksum_file(Path.t()) :: {:ok, binary()} | {:error, File.posix()}
   def checksum_file(path) do
-    {:ok, path |> File.stream!() |> checksum()}
+    {:ok, path |> File.stream!([], 2_048) |> checksum()}
   rescue
     e in [File.Error] -> {:error, e.reason}
   end
