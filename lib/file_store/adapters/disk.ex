@@ -3,7 +3,7 @@ defmodule FileStore.Adapters.Disk do
 
   @behaviour FileStore.Adapter
 
-  @default_base_url "http://localhost:4000/uploads/"
+  @default_base_url "http://localhost:4000/storage/disk/"
 
   @spec get_path(FileStore.t(), binary()) :: {:ok, Path.t()} | {:error, File.posix()}
   def get_path(store, key) do

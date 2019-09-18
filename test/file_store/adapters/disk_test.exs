@@ -7,7 +7,7 @@ defmodule FileStore.Adapters.DiskTest do
   @path "test/fixtures/test.txt"
   @content "blah"
   @etag "6f1ed002ab5595859014ebf0951522d9"
-  @url "http://localhost:4000/uploads/test"
+  @url "http://localhost:4000/storage/disk/test"
   @tmp Path.join(System.tmp_dir!(), "uploads")
   @upload Path.join(@tmp, @key)
   @download Path.join(@tmp, "download")
