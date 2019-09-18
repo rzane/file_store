@@ -1,11 +1,12 @@
-defmodule FileStore.Adapters.TestTest do
+defmodule FileStore.Adapters.MemoryTest do
   use ExUnit.Case
   alias FileStore.Stat
-  alias FileStore.Adapters.Test, as: Adapter
+  alias FileStore.Adapters.Memory, as: Adapter
 
   @key "test"
   @content "blah"
   @path "test/fixtures/test.txt"
+  @etag "6f1ed002ab5595859014ebf0951522d9"
   @store FileStore.new(adapter: Adapter)
 
   setup do
@@ -42,6 +43,6 @@ defmodule FileStore.Adapters.TestTest do
     assert {:error, :enoent} = Adapter.stat(@store, @key)
 
     assert :ok = Adapter.write(@store, @key, @content)
-    assert Adapter.stat(@store, @key) == {:ok, %Stat{key: @key}}
+    assert Adapter.stat(@store, @key) == {:ok, %Stat{key: @key, etag: @etag, size: 4}}
   end
 end

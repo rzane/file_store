@@ -6,7 +6,7 @@ defmodule FileStore.Adapters.NullTest do
   @path "test/fixtures/test.txt"
   @content "blah"
   @download "foo"
-  @store FileStore.new(adatper: Adapter)
+  @store FileStore.new(adapter: Adapter)
 
   test "get_public_url/2" do
     assert Adapter.get_public_url(@store, @key) == @key

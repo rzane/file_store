@@ -1,6 +1,6 @@
 defmodule FileStoreTest do
   use ExUnit.Case
-  alias FileStore.Adapters.Test, as: Adapter
+  alias FileStore.Adapters.Memory, as: Adapter
 
   @key "test"
   @path "test/fixtures/test.txt"
