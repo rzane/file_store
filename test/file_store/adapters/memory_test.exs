@@ -7,6 +7,7 @@ defmodule FileStore.Adapters.MemoryTest do
   @content "blah"
   @path "test/fixtures/test.txt"
   @etag "6f1ed002ab5595859014ebf0951522d9"
+  @tmp Path.join(System.tmp_dir!(), "memory")
   @store FileStore.new(adapter: Adapter)
 
   setup do
@@ -33,10 +34,10 @@ defmodule FileStore.Adapters.MemoryTest do
   end
 
   test "download/3" do
-    assert {:error, :enoent} = Adapter.download(@store, @key, "foo")
+    assert {:error, :enoent} = Adapter.download(@store, @key, @tmp)
 
     assert :ok = Adapter.write(@store, @key, @content)
-    assert :ok = Adapter.download(@store, @key, "foo")
+    assert :ok = Adapter.download(@store, @key, @tmp)
   end
 
   test "stat/2" do
