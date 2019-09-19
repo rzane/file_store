@@ -20,9 +20,9 @@ if Code.ensure_compiled?(ExAws.S3) do
 
     """
 
-    alias FileStore.Stat
-
     @behaviour FileStore.Adapter
+
+    alias FileStore.Stat
 
     @impl true
     def get_public_url(store, key, _opts \\ []) do

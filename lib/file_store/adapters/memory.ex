@@ -2,6 +2,7 @@ defmodule FileStore.Adapters.Memory do
   @behaviour FileStore.Adapter
 
   use Agent
+
   alias FileStore.Stat
 
   @doc """

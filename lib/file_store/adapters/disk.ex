@@ -1,7 +1,7 @@
 defmodule FileStore.Adapters.Disk do
-  alias FileStore.Stat
-
   @behaviour FileStore.Adapter
+
+  alias FileStore.Stat
 
   @default_base_url "http://localhost:4000/storage/disk/"
 

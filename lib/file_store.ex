@@ -1,13 +1,24 @@
 defmodule FileStore do
   @moduledoc """
-  A really generic way to store files.
+  A unified interface to various file storage backends.
+
+  ## Adapters
+
+    * `FileStore.Adapters.Disk`
+    * `FileStore.Adapters.S3`
+    * `FileStore.Adapters.Memory`
+    * `FileStore.Adapters.Null`
+
   """
 
   @behaviour FileStore.Adapter
 
-  @type t() :: %__MODULE__{}
-
   defstruct adapter: nil, config: %{}
+
+  @type t() :: %__MODULE__{
+    adapter: module(),
+    config: map()
+  }
 
   def new(opts) do
     %__MODULE__{
