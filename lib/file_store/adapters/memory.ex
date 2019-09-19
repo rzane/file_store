@@ -3,6 +3,10 @@ defmodule FileStore.Adapters.Memory do
   Stores files in memory. This adapter is particularly
   useful in tests.
 
+  ### Configuration
+
+    * `name` - The name used to register the process.
+
   ### Example
 
       iex> store = FileStore.new(adapter: FileStore.Adapters.Memory)
@@ -40,16 +44,15 @@ defmodule FileStore.Adapters.Memory do
   alias FileStore.Stat
 
   @doc "Starts and agent for the test adapter."
-  def start_link(_) do
-    Agent.start_link(fn -> %{} end, name: __MODULE__)
+  def start_link(opts) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    Agent.start_link(fn -> %{} end, name: name)
   end
 
   @doc "Stops the agent for the test adapter."
-  def stop(reason \\ :normal, timeout \\ :infinity) do
-    Agent.stop(__MODULE__, reason, timeout)
+  def stop(store, reason \\ :normal, timeout \\ :infinity) do
+    Agent.stop(get_name(store), reason, timeout)
   end
-
-  @doc "Get the data associated with a given key."
 
   @impl true
   def get_public_url(_store, key, _opts \\ []), do: key
@@ -58,8 +61,11 @@ defmodule FileStore.Adapters.Memory do
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
 
   @impl true
-  def stat(_store, key) do
-    case Agent.get(__MODULE__, &Map.fetch(&1, key)) do
+  def stat(store, key) do
+    store
+    |> get_name()
+    |> Agent.get(&Map.fetch(&1, key))
+    |> case do
       {:ok, data} ->
         {:ok, %Stat{key: key, size: byte_size(data), etag: Stat.checksum(data)}}
 
@@ -69,8 +75,10 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
-  def write(_store, key, content) do
-    Agent.update(__MODULE__, &Map.put(&1, key, content))
+  def write(store, key, content) do
+    store
+    |> get_name()
+    |> Agent.update(&Map.put(&1, key, content))
   end
 
   @impl true
@@ -81,10 +89,15 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
-  def download(_store, key, destination) do
-    case Agent.get(__MODULE__, &Map.fetch(&1, key)) do
+  def download(store, key, destination) do
+    store
+    |> get_name()
+    |> Agent.get(&Map.fetch(&1, key))
+    |> case do
       {:ok, data} -> File.write(destination, data)
       :error -> {:error, :enoent}
     end
   end
+
+  defp get_name(store), do: Map.get(store.config, :name, __MODULE__)
 end
