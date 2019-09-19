@@ -16,9 +16,9 @@ defmodule FileStore do
   defstruct adapter: nil, config: %{}
 
   @type t() :: %__MODULE__{
-    adapter: module(),
-    config: map()
-  }
+          adapter: module(),
+          config: map()
+        }
 
   def new(opts) do
     %__MODULE__{

@@ -7,6 +7,7 @@ defmodule FileStore.StatTest do
   end
 
   test "checksum_file/1" do
-    assert Stat.checksum_file("test/fixtures/test.txt") == {:ok, "0d599f0ec05c3bda8c3b8a68c32a1b47"}
+    assert Stat.checksum_file("test/fixtures/test.txt") ==
+             {:ok, "0d599f0ec05c3bda8c3b8a68c32a1b47"}
   end
 end
