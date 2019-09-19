@@ -1,9 +1,11 @@
 if Code.ensure_compiled?(ExAws.S3) do
   defmodule FileStore.Adapters.S3 do
     @moduledoc """
-    An `FileStore.Adapter` that stores files using Amazon S3.
+    Stores files using Amazon S3.
 
-    ### Requirements
+    ### Dependencies
+
+    To use this adapter, you'll need to install the following dependencies:
 
         def deps do
           [
@@ -15,8 +17,28 @@ if Code.ensure_compiled?(ExAws.S3) do
 
     ### Configuration
 
-      * `bucket` - The name of your S3 bucket (required).
-      * `base_url` - The base URL of your S3 bucket (optional).
+      * `bucket` - The name of your S3 bucket. This option
+        is required.
+
+      * `base_url` - The base URL that should be used for
+        generating the public URLs to your files.
+
+      * `ex_aws` - A keyword list of options that can be
+        used to configure `ExAws`.
+
+    ### Example
+
+        iex> store = FileStore.new(
+        ...>   adapter: FileStore.Adapters.S3,
+        ...>   bucket: "mybucket"
+        ...> )
+        %FileStore{...}
+
+        iex> FileStore.write(store, "hello world", "foo")
+        :ok
+
+        iex> FileStore.stat(store, "foo")
+        {:ok, %FileStore.Stat{key: "foo", ...}}
 
     """
 
@@ -94,7 +116,13 @@ if Code.ensure_compiled?(ExAws.S3) do
       end)
     end
 
-    defp get_bucket(store), do: Map.fetch!(store.config, :bucket)
+    defp get_bucket(store) do
+      case Map.fetch(store.config, :bucket) do
+        {:ok, bucket} -> bucket
+        :error -> raise "S3 storage expects a `:bucket`"
+      end
+    end
+
     defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
     defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])

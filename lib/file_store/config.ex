@@ -1,20 +1,34 @@
 defmodule FileStore.Config do
   @moduledoc """
-  Define a configurable `FileStore`.
+  Define a configurable store.
 
-      defmodule MyApp.Storage do
+  ### Usage
+
+  First, define a new module:
+
+      defmodule Storage do
         use FileStore.Config, otp_app: :my_app
       end
 
-  Then, add this to your config:
+  In your config files, you'll need to configure your adapter:
 
-      config :my_app, MyApp.Storage,
-        adapter: FileStore.Adapters.Disk
+      config :my_app, Storage,
+        adapter: FileStore.Adapters.Memory
 
-  Your can use this module like so:
+  If you need to dynamically configure your store at runtime,
+  you can implement the `init/1` callback.
 
-      iex> MyApp.Storage.stat("foo")
-      {:ok, %FileStorage.Stat{}}
+      def init(opts) do
+        Keyword.put(opts, :foo, "bar")
+      end
+
+  ### Example
+
+      iex> Storage.write("hello world", "foo")
+      :ok
+
+      iex> Storage.stat("foo")
+      {:ok, %FileStore.Stat{key: "foo", ...}}
 
   """
 
@@ -22,19 +36,18 @@ defmodule FileStore.Config do
     {otp_app, opts} = Keyword.pop(opts, :otp_app)
 
     quote location: :keep do
-      @callback init(Keyword.t()) :: Keyword.t()
-      @optional_callbacks init: 1
+      @spec init(keyword) :: keyword
+      def init(opts), do: opts
+      defoverridable init: 1
 
       @spec new() :: FileStore.t()
       def new do
         config = Application.get_env(unquote(otp_app), __MODULE__, [])
-        config = Keyword.merge(unquote(opts), config)
 
-        if function_exported?(__MODULE__, :init, 1) do
-          FileStore.new(init(config))
-        else
-          FileStore.new(config)
-        end
+        unquote(opts)
+        |> Keyword.merge(config)
+        |> init()
+        |> FileStore.new()
       end
 
       @spec stat(binary()) :: {:ok, FileStore.Stat.t()} | {:error, term()}

@@ -1,43 +1,67 @@
 defmodule FileStore.Adapters.Memory do
+  @moduledoc """
+  Stores files in memory. This adapter is particularly
+  useful in tests.
+
+  ### Example
+
+      iex> store = FileStore.new(adapter: FileStore.Adapters.Memory)
+      %FileStore{adapter: FileStore.Adapters.Memory, config: %{}}
+
+      iex> FileStore.write(store, "hello world", "foo")
+      :ok
+
+      iex> FileStore.stat(store, "foo")
+      {:ok, %FileStore.Stat{key: "foo", ...}}
+
+  ### Usage in tests
+
+      defmodule MyTest do
+        use ExUnit.Case
+
+        setup do
+          start_supervised!(FileStore.Adapters.Memory)
+          :ok
+        end
+
+        test "writes a file" do
+          store = FileStore.new(adapter: FileStore.Adapters.Memory)
+          assert FileStore.write(store, "foo", "bar") == :ok
+          assert FileStore.Adapters.Memory.has_key?("bar")
+        end
+      end
+
+  """
+
   @behaviour FileStore.Adapter
 
   use Agent
 
   alias FileStore.Stat
 
-  @doc """
-  Starts and agent for the test adapter.
-  """
+  @doc "Starts and agent for the test adapter."
   def start_link(_) do
     Agent.start_link(fn -> %{} end, name: __MODULE__)
   end
 
-  @doc """
-  Stops the agent for the test adapter.
-  """
+  @doc "Stops the agent for the test adapter."
   def stop(reason \\ :normal, timeout \\ :infinity) do
     Agent.stop(__MODULE__, reason, timeout)
   end
 
-  @doc """
-  List all keys that have been uploaded.
-  """
+  @doc "List all keys that have been uploaded."
   @spec list_keys() :: list(binary())
   def list_keys do
     Agent.get(__MODULE__, &Map.keys/1)
   end
 
-  @doc """
-  Check if the given key is in state.
-  """
+  @doc "Check if the given key is in state."
   @spec has_key?(binary()) :: boolean()
   def has_key?(key) do
     Agent.get(__MODULE__, &Map.has_key?(&1, key))
   end
 
-  @doc """
-  Get the data associated with a given key.
-  """
+  @doc "Get the data associated with a given key."
   @spec fetch(binary()) :: {:ok, iodata()} | :error
   def fetch(key) do
     Agent.get(__MODULE__, &Map.fetch(&1, key))

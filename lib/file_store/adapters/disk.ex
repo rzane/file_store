@@ -1,14 +1,40 @@
 defmodule FileStore.Adapters.Disk do
+  @moduledoc """
+  Stores files on the local disk. This is primarily intended for development.
+
+  ### Configuration
+
+    * `storage_path` - The path on disk where files are
+      stored. This option is required.
+
+    * `base_url` - The base URL that should be used for
+       generating URLs to your files.
+
+  ### Example
+
+      iex> store = FileStore.new(
+      ...>   adapter: FileStore.Adapters.Disk,
+      ...>   storage_path: "/path/to/store/files",
+      ...>   base_url: "http://example.com/files/"
+      ...> )
+      %FileStore{...}
+
+      iex> FileStore.write(store, "hello world", "foo")
+      :ok
+
+      iex> FileStore.stat("foo")
+      {:ok, %FileStore.Stat{key: "foo", ...}}
+
+  """
+
   @behaviour FileStore.Adapter
 
   alias FileStore.Stat
 
-  @default_base_url "http://localhost:4000/storage/disk/"
-
-  @spec get_path(FileStore.t(), binary()) :: {:ok, Path.t()} | {:error, File.posix()}
-  def get_path(store, key) do
-    with {:ok, storage_path} <- get_storage_path(store),
-         do: {:ok, Path.join(storage_path, key)}
+  @doc "Get an the path for a given key."
+  @spec join(FileStore.t, binary) :: Path.t
+  def join(store, key) do
+    store |> get_storage_path() |> Path.join(key)
   end
 
   @impl true
@@ -23,8 +49,7 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def stat(store, key) do
-    with {:ok, storage_path} <- get_storage_path(store),
-         path <- Path.join(storage_path, key),
+    with path <- join(store, key),
          {:ok, stat} <- File.stat(path),
          {:ok, etag} <- FileStore.Stat.checksum_file(path) do
       {:ok, %Stat{key: key, size: stat.size, etag: etag}}
@@ -53,8 +78,7 @@ defmodule FileStore.Adapters.Disk do
   end
 
   defp expand(store, key) do
-    with {:ok, storage_path} <- get_storage_path(store),
-         path <- Path.join(storage_path, key),
+    with path <- join(store, key),
          dir <- Path.dirname(path),
          :ok <- File.mkdir_p(dir),
          do: {:ok, path}
@@ -62,17 +86,15 @@ defmodule FileStore.Adapters.Disk do
 
   defp get_storage_path(store) do
     case Map.fetch(store.config, :storage_path) do
-      {:ok, path} ->
-        {:ok, path}
-
-      :error ->
-        with {:ok, cwd} <- File.cwd() do
-          {:ok, Path.join(cwd, "storage")}
-        end
+      {:ok, path} -> path
+      :error -> raise "Disk storage expects a `:storage_path`."
     end
   end
 
   defp get_base_url(store) do
-    Map.get(store.config, :base_url, @default_base_url)
+    case Map.fetch(store.config, :base_url) do
+      {:ok, url} -> url
+      :error -> raise "Disk storage expects a `:base_url`."
+    end
   end
 end

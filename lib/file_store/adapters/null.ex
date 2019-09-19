@@ -1,4 +1,20 @@
 defmodule FileStore.Adapters.Null do
+  @moduledoc """
+  Does not attempt to store files.
+
+  ### Example
+
+      iex> store = FileStore.new(adapter: FileStore.Adapters.Null)
+      %FileStore{adapter: FileStore.Adapters.Null, config: %{}}
+
+      iex> FileStore.write(store, "hello world", "foo")
+      :ok
+
+      iex> FileStore.stat(store, "foo")
+      {:ok, %FileStore.Stat{key: "foo", ...}}
+
+  """
+
   @behaviour FileStore.Adapter
 
   alias FileStore.Stat

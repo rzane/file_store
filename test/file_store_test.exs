@@ -2,8 +2,6 @@ defmodule FileStoreTest do
   use ExUnit.Case
   alias FileStore.Adapters.Memory, as: Adapter
 
-  doctest FileStore
-
   @key "test"
   @path "test/fixtures/test.txt"
   @content "blah"
