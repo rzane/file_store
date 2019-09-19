@@ -26,8 +26,8 @@ defmodule FileStore.Adapters.Memory do
 
         test "writes a file" do
           store = FileStore.new(adapter: FileStore.Adapters.Memory)
-          assert FileStore.write(store, "foo", "bar") == :ok
-          assert FileStore.Adapters.Memory.has_key?("bar")
+          assert :ok = FileStore.write(store, "foo", "bar")
+          assert {:ok, _} = FileStore.stat(store, "bar")
         end
       end
 
@@ -49,23 +49,7 @@ defmodule FileStore.Adapters.Memory do
     Agent.stop(__MODULE__, reason, timeout)
   end
 
-  @doc "List all keys that have been uploaded."
-  @spec list_keys() :: list(binary())
-  def list_keys do
-    Agent.get(__MODULE__, &Map.keys/1)
-  end
-
-  @doc "Check if the given key is in state."
-  @spec has_key?(binary()) :: boolean()
-  def has_key?(key) do
-    Agent.get(__MODULE__, &Map.has_key?(&1, key))
-  end
-
   @doc "Get the data associated with a given key."
-  @spec fetch(binary()) :: {:ok, iodata()} | :error
-  def fetch(key) do
-    Agent.get(__MODULE__, &Map.fetch(&1, key))
-  end
 
   @impl true
   def get_public_url(_store, key, _opts \\ []), do: key
@@ -75,7 +59,7 @@ defmodule FileStore.Adapters.Memory do
 
   @impl true
   def stat(_store, key) do
-    case fetch(key) do
+    case Agent.get(__MODULE__, &Map.fetch(&1, key)) do
       {:ok, data} ->
         {:ok, %Stat{key: key, size: byte_size(data), etag: Stat.checksum(data)}}
 
@@ -98,7 +82,7 @@ defmodule FileStore.Adapters.Memory do
 
   @impl true
   def download(_store, key, destination) do
-    case fetch(key) do
+    case Agent.get(__MODULE__, &Map.fetch(&1, key)) do
       {:ok, data} -> File.write(destination, data)
       :error -> {:error, :enoent}
     end

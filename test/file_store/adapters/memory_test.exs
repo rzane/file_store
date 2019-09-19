@@ -25,12 +25,10 @@ defmodule FileStore.Adapters.MemoryTest do
 
   test "write/3" do
     assert :ok = Adapter.write(@store, @key, @content)
-    assert Adapter.has_key?(@key)
   end
 
   test "upload/3" do
     assert :ok = Adapter.upload(@store, @path, @key)
-    assert Adapter.has_key?(@key)
   end
 
   test "download/3" do
@@ -38,6 +36,7 @@ defmodule FileStore.Adapters.MemoryTest do
 
     assert :ok = Adapter.write(@store, @key, @content)
     assert :ok = Adapter.download(@store, @key, @tmp)
+    assert File.exists?(@tmp)
   end
 
   test "stat/2" do

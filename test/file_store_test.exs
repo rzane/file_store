@@ -1,16 +1,11 @@
 defmodule FileStoreTest do
   use ExUnit.Case
-  alias FileStore.Adapters.Memory, as: Adapter
+  alias FileStore.Adapters.Null, as: Adapter
 
   @key "test"
   @path "test/fixtures/test.txt"
   @content "blah"
   @store FileStore.new(adapter: Adapter, foo: "bar")
-
-  setup do
-    start_supervised!(Adapter)
-    :ok
-  end
 
   test "new/1" do
     assert @store.adapter == Adapter
@@ -27,11 +22,9 @@ defmodule FileStoreTest do
 
   test "upload/3" do
     assert :ok = FileStore.upload(@store, @path, @key)
-    assert @key in Adapter.list_keys()
   end
 
   test "write/3" do
     assert :ok = FileStore.write(@store, @key, @content)
-    assert @key in Adapter.list_keys()
   end
 end
