@@ -23,7 +23,9 @@ defmodule FileStore.MixProject do
     [
       {:ex_aws_s3, "~> 2.0", optional: true},
       {:hackney, ">= 0.0.0", optional: true},
-      {:sweet_xml, ">= 0.0.0", optional: true}
+      {:sweet_xml, ">= 0.0.0", optional: true},
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
 end

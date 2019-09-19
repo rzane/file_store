@@ -8,7 +8,6 @@ defmodule FileStore do
     * `FileStore.Adapters.S3`
     * `FileStore.Adapters.Memory`
     * `FileStore.Adapters.Null`
-
   """
 
   @behaviour FileStore.Adapter
@@ -20,6 +19,16 @@ defmodule FileStore do
           config: map()
         }
 
+  @doc """
+  Configures a new store.
+
+  ## Examples
+
+      iex> FileStore.new(adapter: FileStore.Adapters.Null)
+      %FileStore{adapter: FileStore.Adapters.Null, config: %{}}
+
+  """
+  @spec new(Keyword.t()) :: FileStore.t()
   def new(opts) do
     %__MODULE__{
       adapter: Keyword.fetch!(opts, :adapter),

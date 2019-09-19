@@ -17,8 +17,8 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
-  def get_signed_url(store, key, _opts \\ []) do
-    {:ok, get_public_url(store, key)}
+  def get_signed_url(store, key, opts \\ []) do
+    {:ok, get_public_url(store, key, opts)}
   end
 
   @impl true
