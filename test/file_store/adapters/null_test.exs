@@ -34,6 +34,9 @@ defmodule FileStore.Adapters.NullTest do
 
   test "stat/2", %{store: store} do
     assert :ok = FileStore.write(store, "foo", "bar")
-    assert FileStore.stat(store, "foo") == {:ok, %FileStore.Stat{key: "foo"}}
+    assert {:ok, stat} = FileStore.stat(store, "foo")
+    assert stat.key == "foo"
+    assert stat.size == 0
+    assert stat.etag == "d41d8cd98f00b204e9800998ecf8427e"
   end
 end

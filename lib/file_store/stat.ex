@@ -13,13 +13,13 @@ defmodule FileStore.Stat do
 
   """
 
-  @enforce_keys [:key]
+  @enforce_keys [:key, :size, :etag]
   defstruct [:key, :size, :etag]
 
   @type t :: %__MODULE__{
           key: binary,
-          etag: binary | nil,
-          size: non_neg_integer | nil
+          etag: binary,
+          size: non_neg_integer
         }
 
   @doc """
@@ -31,7 +31,7 @@ defmodule FileStore.Stat do
       "5eb63bbbe01eeed093cb22bb8f5acdc3"
 
   """
-  @spec checksum(binary | Enum.t) :: binary
+  @spec checksum(binary | Enum.t()) :: binary
   def checksum(data) when is_binary(data) do
     :md5
     |> :crypto.hash(data)
@@ -56,7 +56,7 @@ defmodule FileStore.Stat do
       {:ok, "0d599f0ec05c3bda8c3b8a68c32a1b47"}
 
   """
-  @spec checksum_file(Path.t) :: {:ok, binary} | {:error, File.posix}
+  @spec checksum_file(Path.t()) :: {:ok, binary} | {:error, File.posix()}
   def checksum_file(path) do
     {:ok, path |> File.stream!([], 2_048) |> checksum()}
   rescue

@@ -26,7 +26,7 @@ defmodule FileStore.Adapters.Null do
   def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
 
   @impl true
-  def stat(_store, key), do: {:ok, %Stat{key: key}}
+  def stat(_store, key), do: {:ok, %Stat{key: key, size: 0, etag: Stat.checksum("")}}
 
   @impl true
   def upload(_store, _source, _key), do: :ok
