@@ -3,6 +3,7 @@
 use Mix.Config
 
 config :ex_aws,
+  json_codec: Jason,
   access_key_id: "foo",
   secret_access_key: "bar"
 

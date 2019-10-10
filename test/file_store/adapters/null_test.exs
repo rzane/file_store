@@ -1,40 +1,39 @@
 defmodule FileStore.Adapters.NullTest do
   use ExUnit.Case
-  alias FileStore.Adapters.Null, as: Adapter
 
-  @key "test"
-  @path "test/fixtures/test.txt"
-  @content "blah"
-  @download "foo"
-  @store FileStore.new(adapter: Adapter)
+  alias FileStore.Adapters.Null
 
-  test "get_public_url/2" do
-    assert Adapter.get_public_url(@store, @key) == @key
+  setup do
+    {:ok, store: FileStore.new(adapter: Null)}
   end
 
-  test "get_signed_url/2" do
-    assert Adapter.get_signed_url(@store, @key) == {:ok, @key}
+  test "get_public_url/2", %{store: store} do
+    assert FileStore.get_public_url(store, "foo") == "foo"
   end
 
-  test "write/3" do
-    assert :ok = Adapter.write(@store, @key, @content)
+  test "get_signed_url/2", %{store: store} do
+    assert FileStore.get_signed_url(store, "foo") == {:ok, "foo"}
   end
 
-  test "read/3" do
-    assert :ok = Adapter.write(@store, @key, @content)
-    assert Adapter.read(@store, @key) == {:ok, ""}
+  test "write/3", %{store: store} do
+    assert :ok = FileStore.write(store, "foo", "bar")
   end
 
-  test "download/3" do
-    assert :ok = Adapter.download(@store, @key, @download)
+  test "read/3", %{store: store} do
+    assert :ok = FileStore.write(store, "foo", "bar")
+    assert FileStore.read(store, "foo") == {:ok, ""}
   end
 
-  test "upload/3" do
-    assert :ok = Adapter.upload(@store, @path, @key)
+  test "download/3", %{store: store} do
+    assert :ok = FileStore.download(store, "foo", "download.txt")
   end
 
-  test "stat/2" do
-    assert :ok = Adapter.write(@store, @key, @content)
-    assert Adapter.stat(@store, @key) == {:ok, %FileStore.Stat{key: @key}}
+  test "upload/3", %{store: store} do
+    assert :ok = FileStore.upload(store, "upload.txt", "foo")
+  end
+
+  test "stat/2", %{store: store} do
+    assert :ok = FileStore.write(store, "foo", "bar")
+    assert FileStore.stat(store, "foo") == {:ok, %FileStore.Stat{key: "foo"}}
   end
 end

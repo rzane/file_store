@@ -105,6 +105,8 @@ if Code.ensure_compiled?(ExAws.S3) do
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(get_bucket(store), key)
       |> acknowledge(store)
+    rescue
+      error in [File.Error] -> {:error, error.reason}
     end
 
     @impl true
