@@ -55,6 +55,9 @@ defmodule FileStore.Stat do
       iex> FileStore.Stat.checksum_file("test/fixtures/test.txt")
       {:ok, "0d599f0ec05c3bda8c3b8a68c32a1b47"}
 
+      iex> FileStore.Stat.checksum_file("test/fixtures/missing.txt")
+      {:error, :enoent}
+
   """
   @spec checksum_file(Path.t()) :: {:ok, binary} | {:error, File.posix()}
   def checksum_file(path) do
