@@ -1,5 +1,11 @@
 # 🗄️ FileStore
 
+![Build](https://img.shields.io/travis/rzane/file_store/master?style=flat-square)
+![Coverage](https://img.shields.io/coveralls/github/rzane/file_store/master?style=flat-square)
+![Issues](https://img.shields.io/github/issues/rzane/file_store?style=flat-square)
+![License](https://img.shields.io/hexpm/l/file_store?style=flat-square)
+![Version](https://img.shields.io/hexpm/v/file_store?style=flat-square)
+
 FileStore allows you to read, write, upload, download, and interact with files, regardless of where they are stored.
 
 It includes adapters for the following storage backends:

@@ -9,6 +9,7 @@ defmodule FileStore.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      package: package(),
       test_coverage: [tool: ExCoveralls]
     ]
   end
@@ -23,7 +24,16 @@ defmodule FileStore.MixProject do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  # Run "mix help deps" to learn about dependencies.
+  defp package do
+    [
+      description: "A unified interface for file storage backends.",
+      files: ["lib", "config", "mix.exs", "README.md", "LICENSE.txt"],
+      maintainers: ["Ray Zane"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/rzane/file_store"}
+    ]
+  end
+
   defp deps do
     [
       {:ex_aws_s3, "~> 2.0", optional: true},
