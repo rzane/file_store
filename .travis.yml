@@ -4,7 +4,7 @@ elixir:
   - '1.8.2'
 
 otp_release:
-  - '20.8.9'
+  - '21.3'
 
 env:
   - MIX_ENV=test
