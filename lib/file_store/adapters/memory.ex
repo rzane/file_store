@@ -7,9 +7,15 @@ defmodule FileStore.Adapters.Memory do
 
     * `name` - The name used to register the process.
 
+    * `base_url` - The base URL that should be used for
+       generating URLs to your files.
+
   ### Example
 
-      iex> store = FileStore.new(adapter: FileStore.Adapters.Memory)
+      iex> store = FileStore.new(
+      ...>   adapter: FileStore.Adapters.Memory,
+      ...>   base_url: "http://example.com/files/"
+      ...> )
       %FileStore{adapter: FileStore.Adapters.Memory, config: %{}}
 
       iex> FileStore.write(store, "hello world", "foo")
@@ -55,10 +61,14 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
-  def get_public_url(_store, key, _opts \\ []), do: key
+  def get_public_url(store, key, _opts \\ []) do
+    store |> get_base_url() |> URI.merge(key) |> URI.to_string()
+  end
 
   @impl true
-  def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
+  def get_signed_url(store, key, opts \\ []) do
+    {:ok, get_public_url(store, key, opts)}
+  end
 
   @impl true
   def stat(store, key) do
@@ -103,5 +113,14 @@ defmodule FileStore.Adapters.Memory do
     end
   end
 
-  defp get_name(store), do: Map.get(store.config, :name, __MODULE__)
+  defp get_name(store) do
+    Map.get(store.config, :name, __MODULE__)
+  end
+
+  defp get_base_url(store) do
+    case Map.fetch(store.config, :base_url) do
+      {:ok, url} -> url
+      :error -> raise "Memory storage expects a `:base_url`."
+    end
+  end
 end
