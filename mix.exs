@@ -8,7 +8,8 @@ defmodule FileStore.MixProject do
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -28,8 +29,8 @@ defmodule FileStore.MixProject do
       {:ex_aws_s3, "~> 2.0", optional: true},
       {:hackney, ">= 0.0.0", optional: true},
       {:sweet_xml, ">= 0.0.0", optional: true},
-      {:jason, ">= 0.0.0", only: [:dev, :test]},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:jason, ">= 0.0.0", only: :test},
+      {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
