@@ -7,7 +7,7 @@ defmodule FileStore.Adapters.Null do
       iex> store = FileStore.new(adapter: FileStore.Adapters.Null)
       %FileStore{...}
 
-      iex> FileStore.write(store, "hello world", "foo")
+      iex> FileStore.write(store, "foo", "hello world")
       :ok
 
       iex> FileStore.stat(store, "foo")

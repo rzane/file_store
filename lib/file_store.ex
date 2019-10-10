@@ -4,10 +4,15 @@ defmodule FileStore do
 
   ## Adapters
 
+  This package ships with the following adapters:
+
     * `FileStore.Adapters.Disk`
     * `FileStore.Adapters.S3`
     * `FileStore.Adapters.Memory`
     * `FileStore.Adapters.Null`
+
+  The documentation for each adapter includes an example that demonstrates
+  it's usage.
   """
 
   @behaviour FileStore.Adapter
@@ -42,7 +47,7 @@ defmodule FileStore do
 
   ## Examples
 
-      iex> FileStore.write(store, "hello world", "foo")
+      iex> FileStore.write(store, "foo", "hello world")
       :ok
 
   """
@@ -135,7 +140,7 @@ defmodule FileStore do
   ## Examples
 
       iex> FileStore.get_signed_url(store, "foo")
-      "https://s3.amazonaws.com/mybucket/foo?X-AMZ-Expires=3600&..."
+      {:ok, "https://s3.amazonaws.com/mybucket/foo?X-AMZ-Expires=3600&..."}
 
   """
   @impl true

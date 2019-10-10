@@ -18,7 +18,7 @@ defmodule FileStore.Adapters.Memory do
       ...> )
       %FileStore{...}
 
-      iex> FileStore.write(store, "hello world", "foo")
+      iex> FileStore.write(store, "foo", "hello world")
       :ok
 
       iex> FileStore.stat(store, "foo")
@@ -37,7 +37,7 @@ defmodule FileStore.Adapters.Memory do
         test "writes a file" do
           store = FileStore.new(adapter: FileStore.Adapters.Memory)
           assert :ok = FileStore.write(store, "foo", "bar")
-          assert {:ok, _} = FileStore.stat(store, "bar")
+          assert {:ok, "bar"} = FileStore.read(store, "foo")
         end
       end
 
@@ -49,7 +49,7 @@ defmodule FileStore.Adapters.Memory do
 
   alias FileStore.Stat
 
-  @doc "Starts and agent for the test adapter."
+  @doc "Starts an agent for the test adapter."
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
     Agent.start_link(fn -> %{} end, name: name)

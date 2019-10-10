@@ -19,7 +19,7 @@ defmodule FileStore.Adapters.Disk do
       ...> )
       %FileStore{...}
 
-      iex> FileStore.write(store, "hello world", "foo")
+      iex> FileStore.write(store, "foo", "hello world")
       :ok
 
       iex> FileStore.stat("foo")

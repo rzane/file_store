@@ -6,14 +6,14 @@ defmodule FileStore.Config do
 
   First, define a new module:
 
-      defmodule Storage do
+      defmodule MyApp.Storage do
         use FileStore.Config, otp_app: :my_app
       end
 
   In your config files, you'll need to configure your adapter:
 
-      config :my_app, Storage,
-        adapter: FileStore.Adapters.Memory
+      config :my_app, MyApp.Storage,
+        adapter: FileStore.Adapters.Null
 
   If you need to dynamically configure your store at runtime,
   you can implement the `init/1` callback.
@@ -24,11 +24,11 @@ defmodule FileStore.Config do
 
   ### Example
 
-      iex> Storage.write("hello world", "foo")
+      iex> MyApp.Storage.write("foo", "hello world")
       :ok
 
-      iex> Storage.stat("foo")
-      {:ok, %FileStore.Stat{key: "foo", ...}}
+      iex> MyApp.Storage.read("foo")
+      {:ok, "hello world"}
 
   """
 
