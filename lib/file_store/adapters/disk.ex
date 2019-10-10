@@ -32,7 +32,7 @@ defmodule FileStore.Adapters.Disk do
   alias FileStore.Stat
 
   @doc "Get an the path for a given key."
-  @spec join(FileStore.t, binary) :: Path.t
+  @spec join(FileStore.t(), binary) :: Path.t()
   def join(store, key) do
     store |> get_storage_path() |> Path.join(key)
   end
@@ -61,6 +61,11 @@ defmodule FileStore.Adapters.Disk do
     with {:ok, path} <- expand(store, key) do
       File.write(path, content)
     end
+  end
+
+  @impl true
+  def read(store, key) do
+    store |> join(key) |> File.read()
   end
 
   @impl true

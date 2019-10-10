@@ -82,6 +82,13 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
+  def read(store, key) do
+    store
+    |> get_name()
+    |> Agent.get(&Map.fetch(&1, key))
+  end
+
+  @impl true
   def upload(store, source, key) do
     with {:ok, data} <- File.read(source) do
       write(store, key, data)
@@ -90,10 +97,7 @@ defmodule FileStore.Adapters.Memory do
 
   @impl true
   def download(store, key, destination) do
-    store
-    |> get_name()
-    |> Agent.get(&Map.fetch(&1, key))
-    |> case do
+    case read(store, key) do
       {:ok, data} -> File.write(destination, data)
       :error -> {:error, :enoent}
     end

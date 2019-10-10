@@ -13,10 +13,10 @@ defmodule FileStore.Adapters.DiskTest do
   @download Path.join(@tmp, "download")
 
   @store FileStore.new(
-    adapter: Adapter,
-    storage_path: @tmp,
-    base_url: "http://localhost:4000/"
-  )
+           adapter: Adapter,
+           storage_path: @tmp,
+           base_url: "http://localhost:4000/"
+         )
 
   setup do
     File.rm_rf!(@tmp)
@@ -35,6 +35,11 @@ defmodule FileStore.Adapters.DiskTest do
     assert :ok = Adapter.write(@store, @key, @content)
     assert File.exists?(@upload)
     assert File.read!(@upload) == @content
+  end
+
+  test "read/2" do
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert Adapter.read(@store, @key) == {:ok, @content}
   end
 
   test "upload/3" do

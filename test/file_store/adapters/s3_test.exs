@@ -38,6 +38,12 @@ defmodule FileStore.Adapters.S3Test do
     assert {:ok, _} = get_object(@key)
   end
 
+  test "read/2" do
+    assert {:ok, _} = prepare_bucket()
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert Adapter.read(@store, @key) == {:ok, @content}
+  end
+
   test "upload/3" do
     assert {:ok, _} = prepare_bucket()
     assert :ok = Adapter.upload(@store, @path, @key)

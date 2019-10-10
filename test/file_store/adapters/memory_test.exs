@@ -27,6 +27,11 @@ defmodule FileStore.Adapters.MemoryTest do
     assert :ok = Adapter.write(@store, @key, @content)
   end
 
+  test "read/3" do
+    assert :ok = Adapter.write(@store, @key, @content)
+    assert Adapter.read(@store, @key) == {:ok, @content}
+  end
+
   test "upload/3" do
     assert :ok = Adapter.upload(@store, @path, @key)
   end

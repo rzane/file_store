@@ -36,4 +36,7 @@ defmodule FileStore.Adapters.Null do
 
   @impl true
   def write(_store, _key, _content), do: :ok
+
+  @impl true
+  def read(_store, _key), do: {:ok, ""}
 end

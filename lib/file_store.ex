@@ -16,7 +16,7 @@ defmodule FileStore do
 
   @type key :: binary
   @type url :: binary
-  @type path :: Path.t
+  @type path :: Path.t()
   @type t :: %__MODULE__{adapter: module, config: map}
 
   @doc """
@@ -50,6 +50,21 @@ defmodule FileStore do
   @spec write(t, key, iodata) :: :ok | {:error, term}
   def write(store, key, content) do
     store.adapter.write(store, key, content)
+  end
+
+  @doc """
+  Read the contents of a file in store into memory.
+
+  ## Examples
+
+      iex> FileStore.read(store, "foo")
+      {:ok, "hello world"}
+
+  """
+  @impl true
+  @spec read(t, key) :: {:ok, iodata} | {:error, term}
+  def read(store, key) do
+    store.adapter.read(store, key)
   end
 
   @doc """
@@ -93,7 +108,7 @@ defmodule FileStore do
 
   """
   @impl true
-  @spec stat(t, key) :: {:ok, FileStore.Stat.t} | {:error, term}
+  @spec stat(t, key) :: {:ok, FileStore.Stat.t()} | {:error, term}
   def stat(store, key) do
     store.adapter.stat(store, key)
   end

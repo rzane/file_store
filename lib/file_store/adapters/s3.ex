@@ -84,7 +84,19 @@ if Code.ensure_compiled?(ExAws.S3) do
       store
       |> get_bucket()
       |> ExAws.S3.put_object(key, content)
+      |> acknowledge(store)
+    end
+
+    @impl true
+    def read(store, key) do
+      store
+      |> get_bucket()
+      |> ExAws.S3.get_object(key)
       |> request(store)
+      |> case do
+        {:ok, %{body: body}} -> {:ok, body}
+        {:error, reason} -> {:error, reason}
+      end
     end
 
     @impl true
@@ -92,7 +104,7 @@ if Code.ensure_compiled?(ExAws.S3) do
       source
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(get_bucket(store), key)
-      |> request(store)
+      |> acknowledge(store)
     end
 
     @impl true
@@ -100,11 +112,15 @@ if Code.ensure_compiled?(ExAws.S3) do
       store
       |> get_bucket()
       |> ExAws.S3.download_file(key, destination)
-      |> request(store)
+      |> acknowledge(store)
     end
 
     defp request(op, store) do
-      case ExAws.request(op, get_overrides(store)) do
+      ExAws.request(op, get_overrides(store))
+    end
+
+    defp acknowledge(op, store) do
+      case request(op, store) do
         {:ok, _} -> :ok
         {:error, reason} -> {:error, reason}
       end

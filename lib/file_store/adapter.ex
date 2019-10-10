@@ -3,13 +3,14 @@ defmodule FileStore.Adapter do
 
   alias FileStore.Stat
 
-  @type store :: FileStore.t
-  @type key :: FileStore.key
+  @type store :: FileStore.t()
+  @type key :: FileStore.key()
 
   @callback write(store, key, iodata) :: :ok | {:error, term}
-  @callback upload(store, Path.t, key) :: :ok | {:error, term}
-  @callback download(store, key, Path.t) :: :ok | {:error, term}
-  @callback stat(store, key) :: {:ok, Stat.t} | {:error, term}
+  @callback read(store, key) :: {:ok, iodata} | {:error, term}
+  @callback upload(store, Path.t(), key) :: :ok | {:error, term}
+  @callback download(store, key, Path.t()) :: :ok | {:error, term}
+  @callback stat(store, key) :: {:ok, Stat.t()} | {:error, term}
   @callback get_public_url(store, key) :: binary
   @callback get_public_url(store, key, keyword) :: binary
   @callback get_signed_url(store, key, keyword) :: {:ok, binary} | {:error, term}
