@@ -1,8 +1,15 @@
-# FileStore
+# 🗄️ FileStore
 
-A unified interface to various file storage backends.
+FileStore allows you to read, write, upload, download, and interact with files, regardless of where they are stored.
 
-[View the documentation.](https://hexdocs.pm/file_store)
+It includes adapters for the following storage backends:
+
+  * [Disk](https://hexdocs.pm/file_store/FileStore.Adapters.Disk.html)
+  * [S3](https://hexdocs.pm/file_store/FileStore.Adapters.S3.html)
+  * [Memory](https://hexdocs.pm/file_store/FileStore.Adapters.Memory.html)
+  * [Null](https://hexdocs.pm/file_store/FileStore.Adapters.Null.html)
+
+> [__View the documentation__](https://hexdocs.pm/file_store)
 
 ## Installation
 
@@ -13,15 +20,6 @@ def deps do
   [{:file_store, "~> 0.1.0"}]
 end
 ```
-
-## Adapters
-
-This package ships with the following adapters:
-
-  * [`FileStore.Adapters.Disk`](https://hexdocs.pm/file_store/FileStore.Adapters.Disk.html)
-  * [`FileStore.Adapters.S3`](https://hexdocs.pm/file_store/FileStore.Adapters.S3.html)
-  * [`FileStore.Adapters.Memory`](https://hexdocs.pm/file_store/FileStore.Adapters.Memory.html)
-  * [`FileStore.Adapters.Null`](https://hexdocs.pm/file_store/FileStore.Adapters.Null.html)
 
 ## Usage
 

@@ -1,6 +1,7 @@
 defmodule FileStore do
   @moduledoc """
-  A unified interface to various file storage backends.
+  FileStore allows you to read, write, upload, download, and interact
+  with files, regardless of where they are stored.
 
   ## Adapters
 
