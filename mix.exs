@@ -37,8 +37,8 @@ defmodule FileStore.MixProject do
   defp deps do
     [
       {:ex_aws_s3, "~> 2.0", optional: true},
-      {:hackney, ">= 0.0.0", optional: true},
-      {:sweet_xml, ">= 0.0.0", optional: true},
+      {:hackney, ">= 0.0.0", only: :test},
+      {:sweet_xml, ">= 0.0.0", only: :test},
       {:jason, ">= 0.0.0", only: :test},
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
