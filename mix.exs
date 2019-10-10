@@ -27,7 +27,6 @@ defmodule FileStore.MixProject do
   defp package do
     [
       description: "A unified interface for file storage backends.",
-      files: ["lib", "config", "mix.exs", "README.md", "LICENSE.txt"],
       maintainers: ["Ray Zane"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/rzane/file_store"}
