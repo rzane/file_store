@@ -22,8 +22,8 @@ defmodule FileStore.Adapters.Disk do
       iex> FileStore.write(store, "foo", "hello world")
       :ok
 
-      iex> FileStore.stat("foo")
-      {:ok, %FileStore.Stat{key: "foo", ...}}
+      iex> FileStore.read("foo")
+      {:ok, "hello world"}
 
   """
 

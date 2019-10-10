@@ -21,8 +21,8 @@ defmodule FileStore.Adapters.Memory do
       iex> FileStore.write(store, "foo", "hello world")
       :ok
 
-      iex> FileStore.stat(store, "foo")
-      {:ok, %FileStore.Stat{key: "foo", ...}}
+      iex> FileStore.read(store, "foo")
+      {:ok, "hello world"}
 
   ### Usage in tests
 
