@@ -16,7 +16,7 @@ defmodule FileStore.Adapters.Memory do
       ...>   adapter: FileStore.Adapters.Memory,
       ...>   base_url: "http://example.com/files/"
       ...> )
-      %FileStore{adapter: FileStore.Adapters.Memory, config: %{}}
+      %FileStore{...}
 
       iex> FileStore.write(store, "hello world", "foo")
       :ok

@@ -5,7 +5,7 @@ defmodule FileStore.Adapters.Null do
   ### Example
 
       iex> store = FileStore.new(adapter: FileStore.Adapters.Null)
-      %FileStore{adapter: FileStore.Adapters.Null, config: %{}}
+      %FileStore{...}
 
       iex> FileStore.write(store, "hello world", "foo")
       :ok
