@@ -87,6 +87,14 @@ if Code.ensure_loaded?(ExAws.S3) do
     end
 
     @impl true
+    def delete(store, key) do
+      store
+      |> get_bucket()
+      |> ExAws.S3.delete_object(key)
+      |> acknowledge(store)
+    end
+
+    @impl true
     def write(store, key, content) do
       store
       |> get_bucket()

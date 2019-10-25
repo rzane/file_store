@@ -20,6 +20,10 @@ defmodule FileStoreTest do
     assert FileStore.get_signed_url(@store, @key) == {:ok, @key}
   end
 
+  test "delete/2" do
+    assert FileStore.delete(@store, @key) == :ok
+  end
+
   test "upload/3" do
     assert :ok = FileStore.upload(@store, @path, @key)
   end
