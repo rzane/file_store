@@ -5,24 +5,42 @@ defmodule FileStore.Adapters.S3Test do
   @region "us-east-1"
   @bucket "filestore"
   @url "https://filestore.s3-us-east-1.amazonaws.com/foo"
+  @prefixed_url "https://filestore.s3-us-east-1.amazonaws.com/images/foo"
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
     {:ok, _} = ensure_bucket_exists()
-    {:ok, store: FileStore.new(adapter: S3, bucket: @bucket)}
+    {:ok, store: FileStore.new(adapter: S3, bucket: @bucket),
+    prefixed: FileStore.new(adapter: S3, bucket: @bucket, prefix: "images")
+  }
   end
 
-  test "get_public_url/2", %{store: store} do
+  test "get_public_url/2", %{store: store, prefixed: prefixed} do
     assert FileStore.get_public_url(store, "foo") == @url
+    assert FileStore.get_public_url(prefixed, "foo") == @prefixed_url
   end
 
   test "get_signed_url/2", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo")
+    assert get_path(url) == "/filestore/foo"
+    assert get_query(url, "X-Amz-Expires") == "3600"
+  end
+
+  test "get_signed_url/2 with prefix", %{prefixed: store} do
+    assert {:ok, url} = FileStore.get_signed_url(store, "foo")
+    assert get_path(url) == "/filestore/images/foo"
     assert get_query(url, "X-Amz-Expires") == "3600"
   end
 
   test "get_signed_url/2 with custom expiration", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
+    assert get_path(url) == "/filestore/foo"
+    assert get_query(url, "X-Amz-Expires") == "4000"
+  end
+
+  test "get_signed_url/2 with custom expiration and prefix", %{prefixed: store} do
+    assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
+    assert get_path(url) == "/filestore/images/foo"
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
@@ -32,6 +50,12 @@ defmodule FileStore.Adapters.S3Test do
     |> Map.fetch!(:query)
     |> URI.decode_query()
     |> Map.fetch!(param)
+  end
+
+  defp get_path(url) do
+    url
+    |> URI.parse()
+    |> Map.fetch!(:path)
   end
 
   defp ensure_bucket_exists do
