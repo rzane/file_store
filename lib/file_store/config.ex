@@ -65,6 +65,11 @@ defmodule FileStore.Config do
         FileStore.write(new(), key, content)
       end
 
+      @spec delete(binary()) :: :ok | {:error, term()}
+      def delete(key) do
+        FileStore.delete(new(), key)
+      end
+
       @spec upload(Path.t(), binary()) :: :ok | {:error, term()}
       def upload(source, key) do
         FileStore.upload(new(), source, key)
