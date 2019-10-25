@@ -58,7 +58,7 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def delete(store, key) do
-    File.r(join(store, key))
+    File.rm(join(store, key))
   end
 
   @impl true
