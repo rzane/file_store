@@ -83,7 +83,7 @@ if Code.ensure_compiled?(ExAws.S3) do
     def write(store, key, content) do
       store
       |> get_bucket()
-      |> ExAws.S3.put_object(key, content)
+      |> ExAws.S3.put_object(key, IO.iodata_to_binary(content))
       |> acknowledge(store)
     end
 
