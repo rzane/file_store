@@ -22,4 +22,8 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 file_store-*.tar
 
+# Ignore ElixirLS temporary files
 /.elixir_ls
+
+# Ignore Dialyzer temporary files
+/priv/plts
