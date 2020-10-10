@@ -12,7 +12,7 @@ defmodule FileStore.MixProject do
       package: package(),
       test_coverage: [tool: ExCoveralls],
       dialyzer: [
-        plt_add_apps: [:ecto, :ex_aws, :ex_aws_s3],
+        plt_add_apps: [:ex_aws, :ex_aws_s3],
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
       ]
     ]
