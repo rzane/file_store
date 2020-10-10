@@ -55,12 +55,12 @@ defmodule FileStore.Config do
         FileStore.stat(new(), key)
       end
 
-      @spec read(binary()) :: {:ok, iodata} | {:error, term}
+      @spec read(binary()) :: {:ok, binary()} | {:error, term()}
       def read(key) do
         FileStore.read(new(), key)
       end
 
-      @spec write(binary(), iodata()) :: :ok | {:error, term()}
+      @spec write(binary(), binary()) :: :ok | {:error, term()}
       def write(key, content) do
         FileStore.write(new(), key, content)
       end
