@@ -1,10 +1,13 @@
-# 🗄️ FileStore
+<h1 align="center">FileStore</h1>
 
-![Build](https://img.shields.io/travis/rzane/file_store/master?style=flat-square)
-![Coverage](https://img.shields.io/coveralls/github/rzane/file_store/master?style=flat-square)
-![Issues](https://img.shields.io/github/issues/rzane/file_store?style=flat-square)
-![License](https://img.shields.io/hexpm/l/file_store?style=flat-square)
-![Version](https://img.shields.io/hexpm/v/file_store?style=flat-square)
+<div align="center">
+
+![Build](https://github.com/rzane/file_store/workflows/Build/badge.svg)
+![Version](https://img.shields.io/hexpm/v/file_store)
+![Coverage](https://img.shields.io/coveralls/github/rzane/file_store)
+![License](https://img.shields.io/hexpm/l/file_store)
+
+</div>
 
 FileStore allows you to read, write, upload, download, and interact with files, regardless of where they are stored.
 
