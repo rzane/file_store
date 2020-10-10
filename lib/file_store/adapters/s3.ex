@@ -66,7 +66,7 @@ if Code.ensure_loaded?(ExAws.S3) do
       store
       |> get_bucket()
       |> ExAws.S3.head_object(key)
-      |> ExAws.request()
+      |> request(store)
       |> case do
         {:ok, %{headers: headers}} ->
           headers = Enum.into(headers, %{})
