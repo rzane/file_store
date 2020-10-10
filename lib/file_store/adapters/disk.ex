@@ -88,7 +88,7 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
-  def list(store) do
+  def list!(store) do
     path = get_storage_path(store)
 
     path

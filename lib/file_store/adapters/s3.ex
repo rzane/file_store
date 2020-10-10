@@ -133,7 +133,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     end
 
     @impl true
-    def list(store) do
+    def list!(store) do
       store
       |> get_bucket()
       |> ExAws.S3.list_objects(prefix: get_prefix(store))

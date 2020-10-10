@@ -53,7 +53,7 @@ defmodule FileStore.Adapters.S3Test do
 
     test "list/1 with a custom prefix", %{store: store} do
       assert :ok = FileStore.write(store, "foo", "")
-      assert "prefix/foo" in Enum.to_list(FileStore.list(store))
+      assert "prefix/foo" in Enum.to_list(FileStore.list!(store))
     end
   end
 

@@ -41,6 +41,6 @@ defmodule FileStore.Adapters.NullTest do
   end
 
   test "list/0", %{store: store} do
-    assert Enum.to_list(FileStore.list(store)) == []
+    assert Enum.to_list(FileStore.list!(store)) == []
   end
 end

@@ -15,5 +15,5 @@ defmodule FileStore.Adapter do
   @callback get_public_url(store, key) :: binary
   @callback get_public_url(store, key, keyword) :: binary
   @callback get_signed_url(store, key, keyword) :: {:ok, binary} | {:error, term}
-  @callback list(store) :: Enumerable.t()
+  @callback list!(store) :: Enumerable.t()
 end

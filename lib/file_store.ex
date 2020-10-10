@@ -170,13 +170,13 @@ defmodule FileStore do
 
   ## Examples
 
-      iex> Enum.to_list(FileStore.list(store))
+      iex> Enum.to_list(FileStore.list!(store))
       ["foo/bar"]
 
   """
   @impl true
-  @spec list(t) :: Enumerable.t()
-  def list(store) do
-    store.adapter.list(store)
+  @spec list!(t) :: Enumerable.t()
+  def list!(store) do
+    store.adapter.list!(store)
   end
 end

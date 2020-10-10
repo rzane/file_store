@@ -121,7 +121,7 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
-  def list(store) do
+  def list!(store) do
     store
     |> get_name()
     |> Agent.get(&Map.keys/1)

@@ -90,9 +90,9 @@ defmodule FileStore.Config do
         FileStore.get_signed_url(new(), key, opts)
       end
 
-      @spec list() :: Enumerable.t()
-      def list() do
-        FileStore.list(new())
+      @spec list!() :: Enumerable.t()
+      def list!() do
+        FileStore.list!(new())
       end
     end
   end
