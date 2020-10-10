@@ -57,6 +57,11 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
+  def delete(store, key) do
+    File.rm(join(store, key))
+  end
+
+  @impl true
   def write(store, key, content) do
     with {:ok, path} <- expand(store, key) do
       File.write(path, content)

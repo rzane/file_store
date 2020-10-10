@@ -120,6 +120,21 @@ defmodule FileStore do
   end
 
   @doc """
+  Delete a file from the store.
+
+  ## Examples
+
+    iex> FileStore.delete(store, "foo")
+    :ok
+
+  """
+  @impl true
+  @spec delete(t, key) :: :ok | {:error, term}
+  def delete(store, key) do
+    store.adapter.delete(store, key)
+  end
+
+  @doc """
   Get URL for your file, assuming that the file is publicly accessible.
 
   ## Examples

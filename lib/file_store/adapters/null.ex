@@ -29,6 +29,9 @@ defmodule FileStore.Adapters.Null do
   def stat(_store, key), do: {:ok, %Stat{key: key, size: 0, etag: Stat.checksum("")}}
 
   @impl true
+  def delete(_store, _key), do: :ok
+
+  @impl true
   def upload(_store, _source, _key), do: :ok
 
   @impl true

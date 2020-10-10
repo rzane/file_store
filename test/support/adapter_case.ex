@@ -76,6 +76,13 @@ defmodule FileStore.AdapterCase do
         end
       end
 
+      describe "delete/2" do
+        test "deletes the file", %{store: store} do
+          assert :ok = FileStore.write(store, "foo", "bar")
+          assert :ok = FileStore.delete(store, "foo")
+        end
+      end
+
       describe "get_public_url/2" do
         test "returns a URL", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")

@@ -85,6 +85,13 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
+  def delete(store, key) do
+    store
+    |> get_name()
+    |> Agent.update(&Map.delete(&1, key))
+  end
+
+  @impl true
   def write(store, key, content) do
     store
     |> get_name()

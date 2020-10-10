@@ -11,6 +11,7 @@ defmodule FileStore.Adapter do
   @callback upload(store, Path.t(), key) :: :ok | {:error, term}
   @callback download(store, key, Path.t()) :: :ok | {:error, term}
   @callback stat(store, key) :: {:ok, Stat.t()} | {:error, term}
+  @callback delete(store, key) :: :ok | {:error, term}
   @callback get_public_url(store, key) :: binary
   @callback get_public_url(store, key, keyword) :: binary
   @callback get_signed_url(store, key, keyword) :: {:ok, binary} | {:error, term}
