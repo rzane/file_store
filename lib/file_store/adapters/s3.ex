@@ -132,6 +132,15 @@ if Code.ensure_loaded?(ExAws.S3) do
       |> acknowledge(store)
     end
 
+    @impl true
+    def list(store) do
+      store
+      |> get_bucket()
+      |> ExAws.S3.list_objects(prefix: get_prefix(store))
+      |> ExAws.stream!(get_overrides(store))
+      |> Stream.map(fn file -> file.key end)
+    end
+
     defp request(op, store) do
       ExAws.request(op, get_overrides(store))
     end
@@ -159,11 +168,13 @@ if Code.ensure_loaded?(ExAws.S3) do
     defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
     defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
+    defp get_prefix(store), do: Map.get(store.config, :prefix)
 
     defp prefix_key(store, key) do
-      case Map.fetch(store.config, :prefix) do
-        {:ok, prefix} -> prefix <> "/" <> key
-        :error -> key
+      if prefix = get_prefix(store) do
+        prefix <> "/" <> key
+      else
+        key
       end
     end
 

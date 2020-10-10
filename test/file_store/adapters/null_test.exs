@@ -39,4 +39,8 @@ defmodule FileStore.Adapters.NullTest do
     assert stat.size == 0
     assert stat.etag == "d41d8cd98f00b204e9800998ecf8427e"
   end
+
+  test "list/0", %{store: store} do
+    assert Enum.to_list(FileStore.list(store)) == []
+  end
 end

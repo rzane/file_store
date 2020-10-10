@@ -98,6 +98,18 @@ defmodule FileStore.AdapterCase do
           assert is_valid_url(url)
         end
       end
+
+      describe "list/3" do
+        test "lists keys in the store", %{store: store} do
+          assert :ok = FileStore.write(store, "foo", "")
+          assert "foo" in Enum.to_list(FileStore.list(store))
+        end
+
+        test "lists nested keys in the store", %{store: store} do
+          assert :ok = FileStore.write(store, "foo/bar", "")
+          assert "foo/bar" in Enum.to_list(FileStore.list(store))
+        end
+      end
     end
   end
 

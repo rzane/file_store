@@ -87,6 +87,17 @@ defmodule FileStore.Adapters.Disk do
          do: :ok
   end
 
+  @impl true
+  def list(store) do
+    path = get_storage_path(store)
+
+    path
+    |> Path.join("**/*")
+    |> Path.wildcard(match_dot: true)
+    |> Stream.reject(&File.dir?/1)
+    |> Stream.map(&Path.relative_to(&1, path))
+  end
+
   defp expand(store, key) do
     with path <- join(store, key),
          dir <- Path.dirname(path),
