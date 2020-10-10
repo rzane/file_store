@@ -151,9 +151,13 @@ if Code.ensure_loaded?(ExAws.S3) do
     defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
     defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
-    defp get_prefix(store), do: Map.get(store.config, :prefix, "")
 
-    defp prefix_key(store, key), do: Path.join(get_prefix(store), key)
+    defp prefix_key(store, key) do
+      case Map.fetch(store.config, :prefix) do
+        {:ok, prefix} -> prefix <> "/" <> key
+        :error -> key
+      end
+    end
 
     defp unwrap_etag(nil), do: nil
     defp unwrap_etag(etag), do: String.trim(etag, ~s("))
