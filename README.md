@@ -13,12 +13,12 @@ FileStore allows you to read, write, upload, download, and interact with files, 
 
 It includes adapters for the following storage backends:
 
-  * [Disk](https://hexdocs.pm/file_store/FileStore.Adapters.Disk.html)
-  * [S3](https://hexdocs.pm/file_store/FileStore.Adapters.S3.html)
-  * [Memory](https://hexdocs.pm/file_store/FileStore.Adapters.Memory.html)
-  * [Null](https://hexdocs.pm/file_store/FileStore.Adapters.Null.html)
+- [Disk](https://hexdocs.pm/file_store/FileStore.Adapters.Disk.html)
+- [S3](https://hexdocs.pm/file_store/FileStore.Adapters.S3.html)
+- [Memory](https://hexdocs.pm/file_store/FileStore.Adapters.Memory.html)
+- [Null](https://hexdocs.pm/file_store/FileStore.Adapters.Null.html)
 
-> [__View the documentation__](https://hexdocs.pm/file_store)
+> [**View the documentation**](https://hexdocs.pm/file_store)
 
 ## Installation
 
@@ -90,6 +90,20 @@ Get a signed URL for the file:
 ```elixir
 iex> FileStore.get_signed_url(store, "bar")
 {:ok, "http://..."}
+```
+
+List all files:
+
+```elixir
+iex> Enum.to_list(FileStore.list!(store))
+["bar"]
+```
+
+Delete a file:
+
+```elixir
+iex> FileStore.delete(store, "bar")
+:ok
 ```
 
 ## Creating a store
