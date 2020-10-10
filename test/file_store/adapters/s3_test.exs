@@ -4,9 +4,9 @@ defmodule FileStore.Adapters.S3Test do
 
   @region "us-east-1"
   @bucket "filestore"
-  @prefix "images"
+  @prefix "prefix"
   @url "https://filestore.s3-us-east-1.amazonaws.com/foo"
-  @prefixed_url "https://filestore.s3-us-east-1.amazonaws.com/images/foo"
+  @prefixed_url "https://filestore.s3-us-east-1.amazonaws.com/prefix/foo"
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
@@ -41,14 +41,19 @@ defmodule FileStore.Adapters.S3Test do
 
     test "get_signed_url/2", %{store: store} do
       assert {:ok, url} = FileStore.get_signed_url(store, "foo")
-      assert get_path(url) == "/filestore/images/foo"
+      assert get_path(url) == "/filestore/prefix/foo"
       assert get_query(url, "X-Amz-Expires") == "3600"
     end
 
     test "get_signed_url/2 with custom expiration", %{store: store} do
       assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
-      assert get_path(url) == "/filestore/images/foo"
+      assert get_path(url) == "/filestore/prefix/foo"
       assert get_query(url, "X-Amz-Expires") == "4000"
+    end
+
+    test "list/1 with a custom prefix", %{store: store} do
+      assert :ok = FileStore.write(store, "foo", "")
+      assert "prefix/foo" in Enum.to_list(FileStore.list(store))
     end
   end
 

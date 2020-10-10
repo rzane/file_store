@@ -164,4 +164,13 @@ defmodule FileStore do
   def get_signed_url(store, key, opts \\ []) do
     store.adapter.get_signed_url(store, key, opts)
   end
+
+  @doc """
+  List all of the files in the store.
+  """
+  @impl true
+  @spec list(t) :: Enumerable.t()
+  def list(store) do
+    store.adapter.list(store)
+  end
 end

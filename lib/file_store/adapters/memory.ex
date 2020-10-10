@@ -120,6 +120,14 @@ defmodule FileStore.Adapters.Memory do
     end
   end
 
+  @impl true
+  def list(store) do
+    store
+    |> get_name()
+    |> Agent.get(&Map.keys/1)
+    |> Stream.into([])
+  end
+
   defp get_name(store) do
     Map.get(store.config, :name, __MODULE__)
   end
