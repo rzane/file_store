@@ -6,8 +6,8 @@ defmodule FileStore.Adapter do
   @type store :: FileStore.t()
   @type key :: FileStore.key()
 
-  @callback write(store, key, iodata) :: :ok | {:error, term}
-  @callback read(store, key) :: {:ok, iodata} | {:error, term}
+  @callback write(store, key, binary) :: :ok | {:error, term}
+  @callback read(store, key) :: {:ok, binary} | {:error, term}
   @callback upload(store, Path.t(), key) :: :ok | {:error, term}
   @callback download(store, key, Path.t()) :: :ok | {:error, term}
   @callback stat(store, key) :: {:ok, Stat.t()} | {:error, term}

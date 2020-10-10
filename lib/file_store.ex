@@ -53,7 +53,7 @@ defmodule FileStore do
 
   """
   @impl true
-  @spec write(t, key, iodata) :: :ok | {:error, term}
+  @spec write(t, key, binary) :: :ok | {:error, term}
   def write(store, key, content) do
     store.adapter.write(store, key, content)
   end
@@ -68,7 +68,7 @@ defmodule FileStore do
 
   """
   @impl true
-  @spec read(t, key) :: {:ok, iodata} | {:error, term}
+  @spec read(t, key) :: {:ok, binary} | {:error, term}
   def read(store, key) do
     store.adapter.read(store, key)
   end
