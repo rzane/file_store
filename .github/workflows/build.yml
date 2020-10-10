@@ -52,3 +52,5 @@ jobs:
 
       - name: Dialyzer
         run: mix dialyzer
+        env:
+          MIX_ENV: dev
