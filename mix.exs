@@ -4,13 +4,17 @@ defmodule FileStore.MixProject do
   def project do
     [
       app: :file_store,
-      version: "0.1.0",
+      version: "0.0.0",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      dialyzer: [
+        plt_add_apps: [:ecto, :ex_aws, :ex_aws_s3],
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ]
     ]
   end
 
@@ -39,8 +43,9 @@ defmodule FileStore.MixProject do
       {:hackney, ">= 0.0.0", only: :test},
       {:sweet_xml, ">= 0.0.0", only: :test},
       {:jason, ">= 0.0.0", only: :test},
-      {:excoveralls, "~> 0.10", only: :test},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:excoveralls, "~> 0.13", only: :test},
+      {:ex_doc, "~> 0.22", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
