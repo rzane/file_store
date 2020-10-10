@@ -4,31 +4,23 @@ defmodule FileStore.Adapters.S3Test do
 
   @region "us-east-1"
   @bucket "filestore"
+  @prefix "images"
   @url "https://filestore.s3-us-east-1.amazonaws.com/foo"
   @prefixed_url "https://filestore.s3-us-east-1.amazonaws.com/images/foo"
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
     {:ok, _} = ensure_bucket_exists()
-    {:ok, store: FileStore.new(adapter: S3, bucket: @bucket),
-    prefixed: FileStore.new(adapter: S3, bucket: @bucket, prefix: "images")
-  }
+    {:ok, store: FileStore.new(adapter: S3, bucket: @bucket)}
   end
 
-  test "get_public_url/2", %{store: store, prefixed: prefixed} do
+  test "get_public_url/2", %{store: store} do
     assert FileStore.get_public_url(store, "foo") == @url
-    assert FileStore.get_public_url(prefixed, "foo") == @prefixed_url
   end
 
   test "get_signed_url/2", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo")
     assert get_path(url) == "/filestore/foo"
-    assert get_query(url, "X-Amz-Expires") == "3600"
-  end
-
-  test "get_signed_url/2 with prefix", %{prefixed: store} do
-    assert {:ok, url} = FileStore.get_signed_url(store, "foo")
-    assert get_path(url) == "/filestore/images/foo"
     assert get_query(url, "X-Amz-Expires") == "3600"
   end
 
@@ -38,10 +30,26 @@ defmodule FileStore.Adapters.S3Test do
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
-  test "get_signed_url/2 with custom expiration and prefix", %{prefixed: store} do
-    assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
-    assert get_path(url) == "/filestore/images/foo"
-    assert get_query(url, "X-Amz-Expires") == "4000"
+  describe "with a prefix" do
+    setup do
+      {:ok, store: FileStore.new(adapter: S3, bucket: @bucket, prefix: @prefix)}
+    end
+
+    test "get_public_url/2", %{store: store} do
+      assert FileStore.get_public_url(store, "foo") == @prefixed_url
+    end
+
+    test "get_signed_url/2", %{store: store} do
+      assert {:ok, url} = FileStore.get_signed_url(store, "foo")
+      assert get_path(url) == "/filestore/images/foo"
+      assert get_query(url, "X-Amz-Expires") == "3600"
+    end
+
+    test "get_signed_url/2 with custom expiration", %{store: store} do
+      assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
+      assert get_path(url) == "/filestore/images/foo"
+      assert get_query(url, "X-Amz-Expires") == "4000"
+    end
   end
 
   defp get_query(url, param) do
