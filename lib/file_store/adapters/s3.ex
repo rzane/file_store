@@ -26,6 +26,13 @@ if Code.ensure_loaded?(ExAws.S3) do
       * `ex_aws` - A keyword list of options that can be
         used to configure `ExAws`.
 
+      * `prefix` - An optional prefix for the FileStore
+        that acts like a parent directory. If the `prefix`
+        is `"images"`, then storing a file (`"cat.jpg"`)
+        in S3 with this store will have the resolved key
+        or `"images/cat.jpg"`. (This is most useful with
+        `use FileStore.Config` modules.)
+
     ### Example
 
         iex> store = FileStore.new(
@@ -50,7 +57,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     def get_public_url(store, key, _opts \\ []) do
       store
       |> get_base_url()
-      |> URI.merge(key)
+      |> URI.merge(prefix_key(store, key))
       |> URI.to_string()
     end
 
@@ -58,14 +65,14 @@ if Code.ensure_loaded?(ExAws.S3) do
     def get_signed_url(store, key, opts \\ []) do
       store
       |> get_config()
-      |> ExAws.S3.presigned_url(:get, get_bucket(store), key, opts)
+      |> ExAws.S3.presigned_url(:get, get_bucket(store), prefix_key(store, key), opts)
     end
 
     @impl true
     def stat(store, key) do
       store
       |> get_bucket()
-      |> ExAws.S3.head_object(key)
+      |> ExAws.S3.head_object(prefix_key(store, key))
       |> request(store)
       |> case do
         {:ok, %{headers: headers}} ->
@@ -83,7 +90,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     def write(store, key, content) do
       store
       |> get_bucket()
-      |> ExAws.S3.put_object(key, content)
+      |> ExAws.S3.put_object(prefix_key(store, key), content)
       |> acknowledge(store)
     end
 
@@ -91,7 +98,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     def read(store, key) do
       store
       |> get_bucket()
-      |> ExAws.S3.get_object(key)
+      |> ExAws.S3.get_object(prefix_key(store, key))
       |> request(store)
       |> case do
         {:ok, %{body: body}} -> {:ok, body}
@@ -103,7 +110,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     def upload(store, source, key) do
       source
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload(get_bucket(store), key)
+      |> ExAws.S3.upload(get_bucket(store), prefix_key(store, key))
       |> acknowledge(store)
     rescue
       error in [File.Error] -> {:error, error.reason}
@@ -113,7 +120,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     def download(store, key, destination) do
       store
       |> get_bucket()
-      |> ExAws.S3.download_file(key, destination)
+      |> ExAws.S3.download_file(prefix_key(store, key), destination)
       |> acknowledge(store)
     end
 
@@ -144,6 +151,13 @@ if Code.ensure_loaded?(ExAws.S3) do
     defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
     defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
+
+    defp prefix_key(store, key) do
+      case Map.fetch(store.config, :prefix) do
+        {:ok, prefix} -> prefix <> "/" <> key
+        :error -> key
+      end
+    end
 
     defp unwrap_etag(nil), do: nil
     defp unwrap_etag(etag), do: String.trim(etag, ~s("))
