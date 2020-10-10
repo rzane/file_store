@@ -167,6 +167,12 @@ defmodule FileStore do
 
   @doc """
   List all of the files in the store.
+
+  ## Examples
+
+      iex> Enum.to_list(FileStore.list(store))
+      ["foo/bar"]
+
   """
   @impl true
   @spec list(t) :: Enumerable.t()
