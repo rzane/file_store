@@ -24,7 +24,7 @@ The package can be installed by adding `file_store` to your list of dependencies
 
 ```elixir
 def deps do
-  [{:file_store, "~> 0.1.0"}]
+  [{:file_store, "~> 0.2"}]
 end
 ```
 
