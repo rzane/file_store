@@ -2,7 +2,7 @@ defmodule FileStore.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/rzane/file_store"
-  @version "0.2.0"
+  @version "0.0.0"
 
   def project do
     [
@@ -57,9 +57,7 @@ defmodule FileStore.MixProject do
       main: "readme",
       source_ref: "v#{@version}",
       source_url: @source_url,
-      extras: [
-        "README.md"
-      ]
+      extras: ["README.md"]
     ]
   end
 end

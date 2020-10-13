@@ -7,5 +7,5 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-perl -pi -e "s/version: \"0.0.0\"/version: \"$1\"/" mix.exs
+perl -pi -e "s/@version \"0.0.0\"/@version \"$1\"/" mix.exs
 mix hex.publish --yes
