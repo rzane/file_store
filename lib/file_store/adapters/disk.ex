@@ -58,7 +58,11 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def delete(store, key) do
-    File.rm(join(store, key))
+    case File.rm(join(store, key)) do
+      :ok -> :ok
+      {:error, reason} when reason in [:enoent, :enotdir] -> :ok
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   @impl true

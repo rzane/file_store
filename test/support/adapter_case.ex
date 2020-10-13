@@ -81,6 +81,11 @@ defmodule FileStore.AdapterCase do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert :ok = FileStore.delete(store, "foo")
         end
+
+        test "indicates success for non-existent keys", %{store: store} do
+          assert :ok = FileStore.delete(store, "non-existent")
+          assert :ok = FileStore.delete(store, "non/existent")
+        end
       end
 
       describe "get_public_url/2" do
