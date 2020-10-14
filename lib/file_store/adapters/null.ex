@@ -44,5 +44,5 @@ defmodule FileStore.Adapters.Null do
   def read(_store, _key), do: {:ok, ""}
 
   @impl true
-  def list!(_store), do: Stream.into([], [])
+  def list!(_store, _opts \\ []), do: Stream.into([], [])
 end

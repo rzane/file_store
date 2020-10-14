@@ -91,8 +91,8 @@ defmodule FileStore.Config do
       end
 
       @spec list! :: Enumerable.t()
-      def list! do
-        FileStore.list!(new())
+      def list!(opts \\ []) do
+        FileStore.list!(new(), opts)
       end
     end
   end

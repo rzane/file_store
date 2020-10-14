@@ -133,10 +133,12 @@ if Code.ensure_loaded?(ExAws.S3) do
     end
 
     @impl true
-    def list!(store) do
+    def list!(store, opts \\ []) do
+      prefix = store |> get_prefix() |> join_prefix(opts[:prefix])
+
       store
       |> get_bucket()
-      |> ExAws.S3.list_objects(prefix: get_prefix(store))
+      |> ExAws.S3.list_objects(prefix: prefix)
       |> ExAws.stream!(get_overrides(store))
       |> Stream.map(fn file -> file.key end)
     end
@@ -170,13 +172,11 @@ if Code.ensure_loaded?(ExAws.S3) do
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
     defp get_prefix(store), do: Map.get(store.config, :prefix)
 
-    defp prefix_key(store, key) do
-      if prefix = get_prefix(store) do
-        prefix <> "/" <> key
-      else
-        key
-      end
-    end
+    defp prefix_key(store, key), do: store |> get_prefix() |> join_prefix(key)
+
+    defp join_prefix(a, nil), do: a
+    defp join_prefix(nil, b), do: b
+    defp join_prefix(a, b), do: a <> "/" <> b
 
     defp unwrap_etag(nil), do: nil
     defp unwrap_etag(etag), do: String.trim(etag, ~s("))

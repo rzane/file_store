@@ -92,10 +92,12 @@ defmodule FileStore.Adapters.Disk do
   end
 
   @impl true
-  def list!(store) do
+  def list!(store, opts \\ []) do
     path = get_storage_path(store)
+    prefix = Keyword.get(opts, :prefix, "")
 
     path
+    |> Path.join(prefix)
     |> Path.join("**/*")
     |> Path.wildcard(match_dot: true)
     |> Stream.reject(&File.dir?/1)

@@ -5,6 +5,7 @@ defmodule FileStore.Adapter do
 
   @type store :: FileStore.t()
   @type key :: FileStore.key()
+  @type list_options :: [prefix: binary]
 
   @callback write(store, key, binary) :: :ok | {:error, term}
   @callback read(store, key) :: {:ok, binary} | {:error, term}
@@ -15,5 +16,5 @@ defmodule FileStore.Adapter do
   @callback get_public_url(store, key) :: binary
   @callback get_public_url(store, key, keyword) :: binary
   @callback get_signed_url(store, key, keyword) :: {:ok, binary} | {:error, term}
-  @callback list!(store) :: Enumerable.t()
+  @callback list!(store, list_options) :: Enumerable.t()
 end
