@@ -30,6 +30,22 @@ defmodule FileStore.Adapters.S3Test do
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
+  test "list/2 respects trailing slashes", %{store: store} do
+    assert :ok = FileStore.write(store, "bar", "")
+    assert :ok = FileStore.write(store, "foo", "")
+    assert :ok = FileStore.write(store, "foo/bar", "")
+
+    keys = Enum.to_list(FileStore.list!(store, prefix: "foo"))
+    refute "bar" in keys
+    assert "foo" in keys
+    assert "foo/bar" in keys
+
+    keys = Enum.to_list(FileStore.list!(store, prefix: "foo/"))
+    refute "bar" in keys
+    refute "foo" in keys
+    assert "foo/bar" in keys
+  end
+
   describe "with a prefix" do
     setup do
       {:ok, store: FileStore.new(adapter: S3, bucket: @bucket, prefix: @prefix)}
@@ -51,9 +67,25 @@ defmodule FileStore.Adapters.S3Test do
       assert get_query(url, "X-Amz-Expires") == "4000"
     end
 
-    test "list/1 with a custom prefix", %{store: store} do
+    test "list/2 lists files", %{store: store} do
       assert :ok = FileStore.write(store, "foo", "")
       assert "prefix/foo" in Enum.to_list(FileStore.list!(store))
+    end
+
+    test "list/2 respects prefix option", %{store: store} do
+      assert :ok = FileStore.write(store, "bar", "")
+      assert :ok = FileStore.write(store, "foo", "")
+      assert :ok = FileStore.write(store, "foo/bar", "")
+
+      keys = Enum.to_list(FileStore.list!(store, prefix: "foo"))
+      refute "prefix/bar" in keys
+      assert "prefix/foo" in keys
+      assert "prefix/foo/bar" in keys
+
+      keys = Enum.to_list(FileStore.list!(store, prefix: "foo/"))
+      refute "prefix/bar" in keys
+      refute "prefix/foo" in keys
+      assert "prefix/foo/bar" in keys
     end
   end
 

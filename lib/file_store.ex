@@ -166,17 +166,24 @@ defmodule FileStore do
   end
 
   @doc """
-  List all of the files in the store.
+  List files in the store.
+
+  ## Options
+
+    * `:prefix` - Only return keys matching the given prefix.
 
   ## Examples
 
       iex> Enum.to_list(FileStore.list!(store))
+      ["bar", "foo/bar"]
+
+      iex> Enum.to_list(FileStore.list!(store, prefix: "foo"))
       ["foo/bar"]
 
   """
   @impl true
   @spec list!(t) :: Enumerable.t()
-  def list!(store) do
-    store.adapter.list!(store)
+  def list!(store, opts \\ []) do
+    store.adapter.list!(store, opts)
   end
 end

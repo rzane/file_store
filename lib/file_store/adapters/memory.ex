@@ -121,11 +121,13 @@ defmodule FileStore.Adapters.Memory do
   end
 
   @impl true
-  def list!(store) do
+  def list!(store, opts \\ []) do
+    prefix = Keyword.get(opts, :prefix, "")
+
     store
     |> get_name()
     |> Agent.get(&Map.keys/1)
-    |> Stream.into([])
+    |> Stream.filter(&String.starts_with?(&1, prefix))
   end
 
   defp get_name(store) do
