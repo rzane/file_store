@@ -50,6 +50,9 @@ defmodule FileStore.Adapters.Memory do
   alias FileStore.Stat
   alias FileStore.Utils
 
+  @enforce_keys [:base_url]
+  defstruct [:base_url, name: __MODULE__]
+
   @doc "Starts an agent for the test adapter."
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
@@ -58,13 +61,12 @@ defmodule FileStore.Adapters.Memory do
 
   @doc "Stops the agent for the test adapter."
   def stop(store, reason \\ :normal, timeout \\ :infinity) do
-    Agent.stop(get_name(store), reason, timeout)
+    Agent.stop(store.name, reason, timeout)
   end
 
   @impl true
   def get_public_url(store, key, _opts \\ []) do
-    store
-    |> get_base_url()
+    store.base_url
     |> URI.parse()
     |> Utils.append_path(key)
     |> URI.to_string()
@@ -77,8 +79,7 @@ defmodule FileStore.Adapters.Memory do
 
   @impl true
   def stat(store, key) do
-    store
-    |> get_name()
+    store.name
     |> Agent.get(&Map.fetch(&1, key))
     |> case do
       {:ok, data} ->
@@ -91,23 +92,17 @@ defmodule FileStore.Adapters.Memory do
 
   @impl true
   def delete(store, key) do
-    store
-    |> get_name()
-    |> Agent.update(&Map.delete(&1, key))
+    Agent.update(store.name, &Map.delete(&1, key))
   end
 
   @impl true
   def write(store, key, content) do
-    store
-    |> get_name()
-    |> Agent.update(&Map.put(&1, key, content))
+    Agent.update(store.name, &Map.put(&1, key, content))
   end
 
   @impl true
   def read(store, key) do
-    store
-    |> get_name()
-    |> Agent.get(&Map.fetch(&1, key))
+    Agent.get(store.name, &Map.fetch(&1, key))
   end
 
   @impl true
@@ -129,20 +124,8 @@ defmodule FileStore.Adapters.Memory do
   def list!(store, opts \\ []) do
     prefix = Keyword.get(opts, :prefix, "")
 
-    store
-    |> get_name()
+    store.name
     |> Agent.get(&Map.keys/1)
     |> Stream.filter(&String.starts_with?(&1, prefix))
-  end
-
-  defp get_name(store) do
-    Map.get(store.config, :name, __MODULE__)
-  end
-
-  defp get_base_url(store) do
-    case Map.fetch(store.config, :base_url) do
-      {:ok, url} -> url
-      :error -> raise "Memory storage expects a `:base_url`."
-    end
   end
 end
