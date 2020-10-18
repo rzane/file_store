@@ -12,11 +12,8 @@ defmodule FileStore.Adapters.Memory do
 
   ### Example
 
-      iex> store = FileStore.new(
-      ...>   adapter: FileStore.Adapters.Memory,
-      ...>   base_url: "http://example.com/files/"
-      ...> )
-      %FileStore{...}
+      iex> store = FileStore.Adapters.Memory.new(base_url: "http://example.com/files/")
+      %FileStore.Adapters.Memory{...}
 
       iex> FileStore.write(store, "foo", "hello world")
       :ok
@@ -35,7 +32,7 @@ defmodule FileStore.Adapters.Memory do
         end
 
         test "writes a file" do
-          store = FileStore.new(adapter: FileStore.Adapters.Memory)
+          store = FileStore.Adapters.Memory.new()
           assert :ok = FileStore.write(store, "foo", "bar")
           assert {:ok, "bar"} = FileStore.read(store, "foo")
         end
@@ -43,14 +40,16 @@ defmodule FileStore.Adapters.Memory do
 
   """
 
-  @behaviour FileStore.Adapter
-
   use Agent
-
-  alias FileStore.Stat
 
   @enforce_keys [:base_url]
   defstruct [:base_url, name: __MODULE__]
+
+  @doc "Creates a new memory adapter"
+  @spec new(keyword) :: FileStore.t()
+  def new(opts) do
+    struct(__MODULE__, opts)
+  end
 
   @doc "Starts an agent for the test adapter."
   def start_link(opts) do
@@ -63,65 +62,60 @@ defmodule FileStore.Adapters.Memory do
     Agent.stop(store.name, reason, timeout)
   end
 
-  @impl true
-  def get_public_url(store, key, _opts \\ []) do
-    store.base_url |> URI.merge(key) |> URI.to_string()
-  end
+  defimpl FileStore do
+    alias FileStore.Stat
 
-  @impl true
-  def get_signed_url(store, key, opts \\ []) do
-    {:ok, get_public_url(store, key, opts)}
-  end
-
-  @impl true
-  def stat(store, key) do
-    store.name
-    |> Agent.get(&Map.fetch(&1, key))
-    |> case do
-      {:ok, data} ->
-        {:ok, %Stat{key: key, size: byte_size(data), etag: Stat.checksum(data)}}
-
-      :error ->
-        {:error, :enoent}
+    def get_public_url(store, key, _opts \\ []) do
+      store.base_url |> URI.merge(key) |> URI.to_string()
     end
-  end
 
-  @impl true
-  def delete(store, key) do
-    Agent.update(store.name, &Map.delete(&1, key))
-  end
-
-  @impl true
-  def write(store, key, content) do
-    Agent.update(store.name, &Map.put(&1, key, content))
-  end
-
-  @impl true
-  def read(store, key) do
-    Agent.get(store.name, &Map.fetch(&1, key))
-  end
-
-  @impl true
-  def upload(store, source, key) do
-    with {:ok, data} <- File.read(source) do
-      write(store, key, data)
+    def get_signed_url(store, key, opts \\ []) do
+      {:ok, get_public_url(store, key, opts)}
     end
-  end
 
-  @impl true
-  def download(store, key, destination) do
-    case read(store, key) do
-      {:ok, data} -> File.write(destination, data)
-      :error -> {:error, :enoent}
+    def stat(store, key) do
+      store.name
+      |> Agent.get(&Map.fetch(&1, key))
+      |> case do
+        {:ok, data} ->
+          {:ok, %Stat{key: key, size: byte_size(data), etag: Stat.checksum(data)}}
+
+        :error ->
+          {:error, :enoent}
+      end
     end
-  end
 
-  @impl true
-  def list!(store, opts \\ []) do
-    prefix = Keyword.get(opts, :prefix, "")
+    def delete(store, key) do
+      Agent.update(store.name, &Map.delete(&1, key))
+    end
 
-    store.name
-    |> Agent.get(&Map.keys/1)
-    |> Stream.filter(&String.starts_with?(&1, prefix))
+    def write(store, key, content) do
+      Agent.update(store.name, &Map.put(&1, key, content))
+    end
+
+    def read(store, key) do
+      Agent.get(store.name, &Map.fetch(&1, key))
+    end
+
+    def upload(store, source, key) do
+      with {:ok, data} <- File.read(source) do
+        write(store, key, data)
+      end
+    end
+
+    def download(store, key, destination) do
+      case read(store, key) do
+        {:ok, data} -> File.write(destination, data)
+        :error -> {:error, :enoent}
+      end
+    end
+
+    def list!(store, opts \\ []) do
+      prefix = Keyword.get(opts, :prefix, "")
+
+      store.name
+      |> Agent.get(&Map.keys/1)
+      |> Stream.filter(&String.starts_with?(&1, prefix))
+    end
   end
 end

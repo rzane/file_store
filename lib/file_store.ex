@@ -1,4 +1,4 @@
-defmodule FileStore do
+defprotocol FileStore do
   @moduledoc """
   FileStore allows you to read, write, upload, download, and interact
   with files, regardless of where they are stored.
@@ -16,27 +16,8 @@ defmodule FileStore do
   it's usage.
   """
 
-  @behaviour FileStore.Adapter
-
-  @type key :: binary
-  @type url :: binary
-  @type path :: Path.t()
-  @type t :: %{:__struct__ => FileStore.Adapter, optional(atom()) => any()}
-
-  @doc """
-  Configures a new store.
-
-  ## Examples
-
-      iex> FileStore.new(adapter: FileStore.Adapters.Memory)
-      %FileStore{adapter: FileStore.Adapters.Memory, config: %{}}
-
-  """
-  @spec new(keyword) :: t()
-  def new(config) do
-    {adapter, config} = Keyword.pop!(config, :adapter)
-    struct(adapter, config)
-  end
+  @type key :: binary()
+  @type list_options :: [prefix: binary]
 
   @doc """
   Write a file to the store. If a file with the given `key`
@@ -48,11 +29,8 @@ defmodule FileStore do
       :ok
 
   """
-  @impl true
   @spec write(t, key, binary) :: :ok | {:error, term}
-  def write(store, key, content) do
-    store.__struct__.write(store, key, content)
-  end
+  def write(store, key, content)
 
   @doc """
   Read the contents of a file in store into memory.
@@ -63,11 +41,8 @@ defmodule FileStore do
       {:ok, "hello world"}
 
   """
-  @impl true
   @spec read(t, key) :: {:ok, binary} | {:error, term}
-  def read(store, key) do
-    store.__struct__.read(store, key)
-  end
+  def read(store, key)
 
   @doc """
   Upload a file to the store. If a file with the given `key`
@@ -79,11 +54,8 @@ defmodule FileStore do
       :ok
 
   """
-  @impl true
-  @spec upload(t, path, key) :: :ok | {:error, term}
-  def upload(store, source, key) do
-    store.__struct__.upload(store, source, key)
-  end
+  @spec upload(t, Path.t(), key) :: :ok | {:error, term}
+  def upload(store, source, key)
 
   @doc """
   Download a file from the store and save it to the given `path`.
@@ -94,11 +66,8 @@ defmodule FileStore do
       :ok
 
   """
-  @impl true
-  @spec download(t, key, path) :: :ok | {:error, term}
-  def download(store, key, destination) do
-    store.__struct__.download(store, key, destination)
-  end
+  @spec download(t, key, Path.t()) :: :ok | {:error, term}
+  def download(store, key, destination)
 
   @doc """
   Retrieve information about a file from the store.
@@ -109,11 +78,8 @@ defmodule FileStore do
       {:ok, %FileStore.Stat{key: "foo", etag: "2e5pd429", size: 24}}
 
   """
-  @impl true
   @spec stat(t, key) :: {:ok, FileStore.Stat.t()} | {:error, term}
-  def stat(store, key) do
-    store.__struct__.stat(store, key)
-  end
+  def stat(store, key)
 
   @doc """
   Delete a file from the store.
@@ -124,11 +90,8 @@ defmodule FileStore do
     :ok
 
   """
-  @impl true
   @spec delete(t, key) :: :ok | {:error, term}
-  def delete(store, key) do
-    store.__struct__.delete(store, key)
-  end
+  def delete(store, key)
 
   @doc """
   Get URL for your file, assuming that the file is publicly accessible.
@@ -139,11 +102,8 @@ defmodule FileStore do
       "https://mybucket.s3-us-east-1.amazonaws.com/foo"
 
   """
-  @impl true
-  @spec get_public_url(t, key, keyword) :: url
-  def get_public_url(store, key, opts \\ []) do
-    store.__struct__.get_public_url(store, key, opts)
-  end
+  @spec get_public_url(t, key, keyword) :: binary
+  def get_public_url(store, key, opts \\ [])
 
   @doc """
   Generate a signed URL for your file. Any user with this URL should be able
@@ -155,11 +115,8 @@ defmodule FileStore do
       {:ok, "https://s3.amazonaws.com/mybucket/foo?X-AMZ-Expires=3600&..."}
 
   """
-  @impl true
-  @spec get_signed_url(t, key, keyword) :: {:ok, url} | {:error, term}
-  def get_signed_url(store, key, opts \\ []) do
-    store.__struct__.get_signed_url(store, key, opts)
-  end
+  @spec get_signed_url(t, key, keyword) :: {:ok, binary} | {:error, term}
+  def get_signed_url(store, key, opts \\ [])
 
   @doc """
   List files in the store.
@@ -177,9 +134,6 @@ defmodule FileStore do
       ["foo/bar"]
 
   """
-  @impl true
-  @spec list!(t) :: Enumerable.t()
-  def list!(store, opts \\ []) do
-    store.__struct__.list!(store, opts)
-  end
+  @spec list!(t, list_options) :: Enumerable.t()
+  def list!(store, opts \\ [])
 end
