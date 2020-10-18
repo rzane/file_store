@@ -182,12 +182,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     defp unwrap_etag(etag), do: String.trim(etag, ~s("))
 
     defp to_integer(nil), do: nil
-
-    defp to_integer(value) when is_binary(value) do
-      {value, _} = Integer.parse(value)
-      value
-    end
-
-    defp to_integer(value), do: value
+    defp to_integer(value) when is_integer(value), do: value
+    defp to_integer(value) when is_binary(value), do: String.to_integer(value)
   end
 end
