@@ -52,6 +52,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     @behaviour FileStore.Adapter
 
     alias FileStore.Stat
+    alias FileStore.Utils
 
     @impl true
     def get_public_url(store, key, _opts \\ []) do
@@ -134,7 +135,7 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     @impl true
     def list!(store, opts \\ []) do
-      prefix = store |> get_prefix() |> join_prefix(opts[:prefix])
+      prefix = store |> get_prefix() |> Utils.join(opts[:prefix])
 
       store
       |> get_bucket()
@@ -172,11 +173,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
     defp get_prefix(store), do: Map.get(store.config, :prefix)
 
-    defp prefix_key(store, key), do: store |> get_prefix() |> join_prefix(key)
-
-    defp join_prefix(a, nil), do: a
-    defp join_prefix(nil, b), do: b
-    defp join_prefix(a, b), do: a <> "/" <> b
+    defp prefix_key(store, key), do: store |> get_prefix() |> Utils.join(key)
 
     defp unwrap_etag(nil), do: nil
     defp unwrap_etag(etag), do: String.trim(etag, ~s("))
