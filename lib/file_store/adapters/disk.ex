@@ -31,15 +31,18 @@ defmodule FileStore.Adapters.Disk do
 
   alias FileStore.Stat
 
+  @enforce_keys [:storage_path, :base_url]
+  defstruct [:storage_path, :base_url]
+
   @doc "Get an the path for a given key."
   @spec join(FileStore.t(), binary) :: Path.t()
   def join(store, key) do
-    store |> get_storage_path() |> Path.join(key)
+    Path.join(store.storage_path, key)
   end
 
   @impl true
   def get_public_url(store, key, _opts \\ []) do
-    store |> get_base_url() |> URI.merge(key) |> URI.to_string()
+    store.base_url |> URI.merge(key) |> URI.to_string()
   end
 
   @impl true
@@ -93,15 +96,14 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def list!(store, opts \\ []) do
-    path = get_storage_path(store)
     prefix = Keyword.get(opts, :prefix, "")
 
-    path
+    store.storage_path
     |> Path.join(prefix)
     |> Path.join("**/*")
     |> Path.wildcard(match_dot: true)
     |> Stream.reject(&File.dir?/1)
-    |> Stream.map(&Path.relative_to(&1, path))
+    |> Stream.map(&Path.relative_to(&1, store.storage_path))
   end
 
   defp expand(store, key) do
@@ -109,19 +111,5 @@ defmodule FileStore.Adapters.Disk do
          dir <- Path.dirname(path),
          :ok <- File.mkdir_p(dir),
          do: {:ok, path}
-  end
-
-  defp get_storage_path(store) do
-    case Map.fetch(store.config, :storage_path) do
-      {:ok, path} -> path
-      :error -> raise "Disk storage expects a `:storage_path`."
-    end
-  end
-
-  defp get_base_url(store) do
-    case Map.fetch(store.config, :base_url) do
-      {:ok, url} -> url
-      :error -> raise "Disk storage expects a `:base_url`."
-    end
   end
 end

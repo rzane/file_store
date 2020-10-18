@@ -19,6 +19,8 @@ defmodule FileStore.Adapters.Null do
 
   alias FileStore.Stat
 
+  defstruct []
+
   @impl true
   def get_public_url(_store, key, _opts \\ []), do: key
 

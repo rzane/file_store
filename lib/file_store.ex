@@ -18,12 +18,10 @@ defmodule FileStore do
 
   @behaviour FileStore.Adapter
 
-  defstruct adapter: nil, config: %{}
-
   @type key :: binary
   @type url :: binary
   @type path :: Path.t()
-  @type t :: %__MODULE__{adapter: module, config: map}
+  @type t :: %{:__struct__ => FileStore.Adapter, optional(atom()) => any()}
 
   @doc """
   Configures a new store.
@@ -35,11 +33,9 @@ defmodule FileStore do
 
   """
   @spec new(keyword) :: t()
-  def new(opts) do
-    %__MODULE__{
-      adapter: Keyword.fetch!(opts, :adapter),
-      config: opts |> Keyword.delete(:adapter) |> Enum.into(%{})
-    }
+  def new(config) do
+    {adapter, config} = Keyword.pop!(config, :adapter)
+    struct(adapter, config)
   end
 
   @doc """
@@ -55,7 +51,7 @@ defmodule FileStore do
   @impl true
   @spec write(t, key, binary) :: :ok | {:error, term}
   def write(store, key, content) do
-    store.adapter.write(store, key, content)
+    store.__struct__.write(store, key, content)
   end
 
   @doc """
@@ -70,7 +66,7 @@ defmodule FileStore do
   @impl true
   @spec read(t, key) :: {:ok, binary} | {:error, term}
   def read(store, key) do
-    store.adapter.read(store, key)
+    store.__struct__.read(store, key)
   end
 
   @doc """
@@ -86,7 +82,7 @@ defmodule FileStore do
   @impl true
   @spec upload(t, path, key) :: :ok | {:error, term}
   def upload(store, source, key) do
-    store.adapter.upload(store, source, key)
+    store.__struct__.upload(store, source, key)
   end
 
   @doc """
@@ -101,7 +97,7 @@ defmodule FileStore do
   @impl true
   @spec download(t, key, path) :: :ok | {:error, term}
   def download(store, key, destination) do
-    store.adapter.download(store, key, destination)
+    store.__struct__.download(store, key, destination)
   end
 
   @doc """
@@ -116,7 +112,7 @@ defmodule FileStore do
   @impl true
   @spec stat(t, key) :: {:ok, FileStore.Stat.t()} | {:error, term}
   def stat(store, key) do
-    store.adapter.stat(store, key)
+    store.__struct__.stat(store, key)
   end
 
   @doc """
@@ -131,7 +127,7 @@ defmodule FileStore do
   @impl true
   @spec delete(t, key) :: :ok | {:error, term}
   def delete(store, key) do
-    store.adapter.delete(store, key)
+    store.__struct__.delete(store, key)
   end
 
   @doc """
@@ -146,7 +142,7 @@ defmodule FileStore do
   @impl true
   @spec get_public_url(t, key, keyword) :: url
   def get_public_url(store, key, opts \\ []) do
-    store.adapter.get_public_url(store, key, opts)
+    store.__struct__.get_public_url(store, key, opts)
   end
 
   @doc """
@@ -162,7 +158,7 @@ defmodule FileStore do
   @impl true
   @spec get_signed_url(t, key, keyword) :: {:ok, url} | {:error, term}
   def get_signed_url(store, key, opts \\ []) do
-    store.adapter.get_signed_url(store, key, opts)
+    store.__struct__.get_signed_url(store, key, opts)
   end
 
   @doc """
@@ -184,6 +180,6 @@ defmodule FileStore do
   @impl true
   @spec list!(t) :: Enumerable.t()
   def list!(store, opts \\ []) do
-    store.adapter.list!(store, opts)
+    store.__struct__.list!(store, opts)
   end
 end

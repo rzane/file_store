@@ -5,11 +5,10 @@ defmodule FileStoreTest do
   @key "test"
   @path "test/fixtures/test.txt"
   @content "blah"
-  @store FileStore.new(adapter: Adapter, foo: "bar")
+  @store FileStore.new(adapter: Adapter)
 
   test "new/1" do
-    assert @store.adapter == Adapter
-    assert @store.config.foo == "bar"
+    assert @store == %Adapter{}
   end
 
   test "get_public_url/2" do

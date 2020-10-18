@@ -20,9 +20,6 @@ if Code.ensure_loaded?(ExAws.S3) do
       * `bucket` - The name of your S3 bucket. This option
         is required.
 
-      * `base_url` - The base URL that should be used for
-        generating the public URLs to your files.
-
       * `ex_aws` - A keyword list of options that can be
         used to configure `ExAws`.
 
@@ -54,26 +51,36 @@ if Code.ensure_loaded?(ExAws.S3) do
     alias FileStore.Stat
     alias FileStore.Utils
 
+    @enforce_keys [:bucket]
+    defstruct [:bucket, prefix: nil, ex_aws: []]
+
     @impl true
     def get_public_url(store, key, _opts \\ []) do
-      store
-      |> get_base_url()
-      |> URI.merge(prefix_key(store, key))
-      |> URI.to_string()
+      config = get_config(store)
+      scheme = String.trim_trailing(config[:scheme], "://")
+      path = "/" <> store.bucket <> "/" <> put_prefix(store, key)
+
+      uri = %URI{
+        scheme: scheme,
+        host: config[:host],
+        port: config[:port],
+        path: path
+      }
+
+      URI.to_string(uri)
     end
 
     @impl true
     def get_signed_url(store, key, opts \\ []) do
-      store
-      |> get_config()
-      |> ExAws.S3.presigned_url(:get, get_bucket(store), prefix_key(store, key), opts)
+      config = get_config(store)
+      key = put_prefix(store, key)
+      ExAws.S3.presigned_url(config, :get, store.bucket, key, opts)
     end
 
     @impl true
     def stat(store, key) do
-      store
-      |> get_bucket()
-      |> ExAws.S3.head_object(prefix_key(store, key))
+      store.bucket
+      |> ExAws.S3.head_object(put_prefix(store, key))
       |> request(store)
       |> case do
         {:ok, %{headers: headers}} ->
@@ -89,25 +96,22 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     @impl true
     def delete(store, key) do
-      store
-      |> get_bucket()
+      store.bucket
       |> ExAws.S3.delete_object(key)
       |> acknowledge(store)
     end
 
     @impl true
     def write(store, key, content) do
-      store
-      |> get_bucket()
-      |> ExAws.S3.put_object(prefix_key(store, key), content)
+      store.bucket
+      |> ExAws.S3.put_object(put_prefix(store, key), content)
       |> acknowledge(store)
     end
 
     @impl true
     def read(store, key) do
-      store
-      |> get_bucket()
-      |> ExAws.S3.get_object(prefix_key(store, key))
+      store.bucket
+      |> ExAws.S3.get_object(put_prefix(store, key))
       |> request(store)
       |> case do
         {:ok, %{body: body}} -> {:ok, body}
@@ -119,7 +123,7 @@ if Code.ensure_loaded?(ExAws.S3) do
     def upload(store, source, key) do
       source
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload(get_bucket(store), prefix_key(store, key))
+      |> ExAws.S3.upload(store.bucket, put_prefix(store, key))
       |> acknowledge(store)
     rescue
       error in [File.Error] -> {:error, error.reason}
@@ -127,25 +131,23 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     @impl true
     def download(store, key, destination) do
-      store
-      |> get_bucket()
-      |> ExAws.S3.download_file(prefix_key(store, key), destination)
+      store.bucket
+      |> ExAws.S3.download_file(put_prefix(store, key), destination)
       |> acknowledge(store)
     end
 
     @impl true
     def list!(store, opts \\ []) do
-      prefix = store |> get_prefix() |> Utils.join(opts[:prefix])
+      prefix = put_prefix(store, opts[:prefix])
 
-      store
-      |> get_bucket()
+      store.bucket
       |> ExAws.S3.list_objects(prefix: prefix)
-      |> ExAws.stream!(get_overrides(store))
+      |> ExAws.stream!(store.ex_aws)
       |> Stream.map(fn file -> file.key end)
     end
 
     defp request(op, store) do
-      ExAws.request(op, get_overrides(store))
+      ExAws.request(op, store.ex_aws)
     end
 
     defp acknowledge(op, store) do
@@ -155,25 +157,8 @@ if Code.ensure_loaded?(ExAws.S3) do
       end
     end
 
-    defp get_base_url(store) do
-      Map.get_lazy(store, :base_url, fn ->
-        "https://#{get_bucket(store)}.s3-#{get_region(store)}.amazonaws.com"
-      end)
-    end
-
-    defp get_bucket(store) do
-      case Map.fetch(store.config, :bucket) do
-        {:ok, bucket} -> bucket
-        :error -> raise "S3 storage expects a `:bucket`"
-      end
-    end
-
-    defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
-    defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
-    defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
-    defp get_prefix(store), do: Map.get(store.config, :prefix)
-
-    defp prefix_key(store, key), do: store |> get_prefix() |> Utils.join(key)
+    defp get_config(store), do: ExAws.Config.new(:s3, store.ex_aws)
+    defp put_prefix(store, key), do: Utils.join(store.prefix, key)
 
     defp unwrap_etag(nil), do: nil
     defp unwrap_etag(etag), do: String.trim(etag, ~s("))
