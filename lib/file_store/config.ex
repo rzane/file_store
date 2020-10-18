@@ -44,10 +44,13 @@ defmodule FileStore.Config do
       def new do
         config = Application.get_env(unquote(otp_app), __MODULE__, [])
 
-        unquote(opts)
-        |> Keyword.merge(config)
-        |> init()
-        |> FileStore.new()
+        {adapter, config} =
+          unquote(opts)
+          |> Keyword.merge(config)
+          |> init()
+          |> Keyword.pop!(:adapter)
+
+        adapter.new(config)
       end
 
       @spec stat(binary()) :: {:ok, FileStore.Stat.t()} | {:error, term()}

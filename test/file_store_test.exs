@@ -5,7 +5,7 @@ defmodule FileStoreTest do
   @key "test"
   @path "test/fixtures/test.txt"
   @content "blah"
-  @store FileStore.new(adapter: Adapter)
+  @store Adapter.new()
 
   test "new/1" do
     assert @store == %Adapter{}

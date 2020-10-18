@@ -4,7 +4,7 @@ defmodule FileStore.Adapters.NullTest do
   alias FileStore.Adapters.Null
 
   setup do
-    {:ok, store: FileStore.new(adapter: Null)}
+    {:ok, store: Null.new()}
   end
 
   test "get_public_url/2", %{store: store} do
