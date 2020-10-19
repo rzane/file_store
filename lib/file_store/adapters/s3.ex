@@ -66,6 +66,8 @@ if Code.ensure_loaded?(ExAws.S3) do
       def get_signed_url(store, key, opts) do
         config = get_config(store)
         key = put_prefix(store, key)
+        opts = Keyword.take(opts, [:expires_in])
+        opts = Keyword.put(opts, :virtual_host, true)
         ExAws.S3.presigned_url(config, :get, store.bucket, key, opts)
       end
 
