@@ -4,7 +4,7 @@ defmodule FileStore.Adapters.Null do
 
   ### Example
 
-      iex> store = FileStore.Adaptesr.Null.new()
+      iex> store = FileStore.Adapters.Null.new()
       %FileStore.Adapters.Null{...}
 
       iex> FileStore.write(store, "foo", "hello world")
