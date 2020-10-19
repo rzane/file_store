@@ -16,7 +16,7 @@ defmodule FileStore.Adapters.Disk do
       ...>   storage_path: "/path/to/store/files",
       ...>   base_url: "http://example.com/files/"
       ...> )
-      %FileStore{...}
+      %FileStore.Adapters.Disk{...}
 
       iex> FileStore.write(store, "foo", "hello world")
       :ok

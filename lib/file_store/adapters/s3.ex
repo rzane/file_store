@@ -35,7 +35,7 @@ if Code.ensure_loaded?(ExAws.S3) do
         iex> store = FileStore.Adapters.S3.new(
         ...>   bucket: "mybucket"
         ...> )
-        %FileStore{...}
+        %FileStore.Adapters.S3{...}
 
         iex> FileStore.write(store, "foo", "hello world")
         :ok
