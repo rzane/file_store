@@ -20,13 +20,13 @@ defmodule FileStore.Adapters.S3Test do
 
   test "get_signed_url/2", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo")
-    assert get_path(url) == "/filestore/foo"
+    assert get_path(url) == "/foo"
     assert get_query(url, "X-Amz-Expires") == "3600"
   end
 
   test "get_signed_url/2 with custom expiration", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
-    assert get_path(url) == "/filestore/foo"
+    assert get_path(url) == "/foo"
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 

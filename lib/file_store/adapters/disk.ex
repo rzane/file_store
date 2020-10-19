@@ -43,10 +43,14 @@ defmodule FileStore.Adapters.Disk do
 
   defimpl FileStore do
     alias FileStore.Stat
+    alias FileStore.Utils
     alias FileStore.Adapters.Disk
 
     def get_public_url(store, key, _opts) do
-      store.base_url |> URI.merge(key) |> URI.to_string()
+      store.base_url
+      |> URI.parse()
+      |> Utils.append_path(key)
+      |> URI.to_string()
     end
 
     def get_signed_url(store, key, opts) do
