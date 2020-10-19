@@ -30,6 +30,7 @@ defmodule FileStore.Adapters.Disk do
   @behaviour FileStore.Adapter
 
   alias FileStore.Stat
+  alias FileStore.Utils
 
   @doc "Get an the path for a given key."
   @spec join(FileStore.t(), binary) :: Path.t()
@@ -39,7 +40,11 @@ defmodule FileStore.Adapters.Disk do
 
   @impl true
   def get_public_url(store, key, _opts \\ []) do
-    store |> get_base_url() |> URI.merge(key) |> URI.to_string()
+    store
+    |> get_base_url()
+    |> URI.parse()
+    |> Utils.append_path(key)
+    |> URI.to_string()
   end
 
   @impl true
