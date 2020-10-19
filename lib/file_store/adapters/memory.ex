@@ -65,11 +65,11 @@ defmodule FileStore.Adapters.Memory do
   defimpl FileStore do
     alias FileStore.Stat
 
-    def get_public_url(store, key, _opts \\ []) do
+    def get_public_url(store, key, _opts) do
       store.base_url |> URI.merge(key) |> URI.to_string()
     end
 
-    def get_signed_url(store, key, opts \\ []) do
+    def get_signed_url(store, key, opts) do
       {:ok, get_public_url(store, key, opts)}
     end
 
@@ -110,7 +110,7 @@ defmodule FileStore.Adapters.Memory do
       end
     end
 
-    def list!(store, opts \\ []) do
+    def list!(store, opts) do
       prefix = Keyword.get(opts, :prefix, "")
 
       store.name
