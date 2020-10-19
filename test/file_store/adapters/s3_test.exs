@@ -5,8 +5,8 @@ defmodule FileStore.Adapters.S3Test do
   @region "us-east-1"
   @bucket "filestore"
   @prefix "prefix"
-  @url "https://filestore.s3-us-east-1.amazonaws.com/foo"
-  @prefixed_url "https://filestore.s3-us-east-1.amazonaws.com/prefix/foo"
+  @url "http://filestore.localhost:4569/foo"
+  @prefixed_url "http://filestore.localhost:4569/prefix/foo"
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
@@ -20,13 +20,13 @@ defmodule FileStore.Adapters.S3Test do
 
   test "get_signed_url/2", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo")
-    assert get_path(url) == "/filestore/foo"
+    assert omit_query(url) == @url
     assert get_query(url, "X-Amz-Expires") == "3600"
   end
 
   test "get_signed_url/2 with custom expiration", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
-    assert get_path(url) == "/filestore/foo"
+    assert omit_query(url) == @url
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
@@ -57,13 +57,13 @@ defmodule FileStore.Adapters.S3Test do
 
     test "get_signed_url/2", %{store: store} do
       assert {:ok, url} = FileStore.get_signed_url(store, "foo")
-      assert get_path(url) == "/filestore/prefix/foo"
+      assert omit_query(url) == @prefixed_url
       assert get_query(url, "X-Amz-Expires") == "3600"
     end
 
     test "get_signed_url/2 with custom expiration", %{store: store} do
       assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
-      assert get_path(url) == "/filestore/prefix/foo"
+      assert omit_query(url) == @prefixed_url
       assert get_query(url, "X-Amz-Expires") == "4000"
     end
 
@@ -97,10 +97,11 @@ defmodule FileStore.Adapters.S3Test do
     |> Map.fetch!(param)
   end
 
-  defp get_path(url) do
+  defp omit_query(url) do
     url
     |> URI.parse()
-    |> Map.fetch!(:path)
+    |> Map.put(:query, nil)
+    |> URI.to_string()
   end
 
   defp ensure_bucket_exists do
