@@ -48,6 +48,7 @@ defmodule FileStore.Adapters.Memory do
   use Agent
 
   alias FileStore.Stat
+  alias FileStore.Utils
 
   @doc "Starts an agent for the test adapter."
   def start_link(opts) do
@@ -62,7 +63,11 @@ defmodule FileStore.Adapters.Memory do
 
   @impl true
   def get_public_url(store, key, _opts \\ []) do
-    store |> get_base_url() |> URI.merge(key) |> URI.to_string()
+    store
+    |> get_base_url()
+    |> URI.parse()
+    |> Utils.append_path(key)
+    |> URI.to_string()
   end
 
   @impl true
