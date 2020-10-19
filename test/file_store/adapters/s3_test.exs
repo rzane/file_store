@@ -5,8 +5,8 @@ defmodule FileStore.Adapters.S3Test do
   @region "us-east-1"
   @bucket "filestore"
   @prefix "prefix"
-  @url "http://localhost:4569/filestore/foo"
-  @prefixed_url "http://localhost:4569/filestore/prefix/foo"
+  @url "http://filestore.localhost:4569/foo"
+  @prefixed_url "http://filestore.localhost:4569/prefix/foo"
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)

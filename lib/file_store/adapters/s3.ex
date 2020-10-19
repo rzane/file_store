@@ -52,14 +52,12 @@ if Code.ensure_loaded?(ExAws.S3) do
 
       def get_public_url(store, key, _opts) do
         config = get_config(store)
-        scheme = String.trim_trailing(config[:scheme], "://")
-        path = "/" <> store.bucket <> "/" <> put_prefix(store, key)
 
         uri = %URI{
-          scheme: scheme,
-          host: config[:host],
+          scheme: String.trim_trailing(config[:scheme], "://"),
+          host: store.bucket <> "." <> config[:host],
           port: config[:port],
-          path: path
+          path: "/" <> put_prefix(store, key)
         }
 
         URI.to_string(uri)
