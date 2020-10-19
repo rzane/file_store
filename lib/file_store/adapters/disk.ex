@@ -12,12 +12,11 @@ defmodule FileStore.Adapters.Disk do
 
   ### Example
 
-      iex> store = FileStore.new(
-      ...>   adapter: FileStore.Adapters.Disk,
+      iex> store = FileStore.Adapters.Disk.new(
       ...>   storage_path: "/path/to/store/files",
       ...>   base_url: "http://example.com/files/"
       ...> )
-      %FileStore{...}
+      %FileStore.Adapters.Disk{...}
 
       iex> FileStore.write(store, "foo", "hello world")
       :ok
@@ -27,106 +26,91 @@ defmodule FileStore.Adapters.Disk do
 
   """
 
-  @behaviour FileStore.Adapter
+  @enforce_keys [:storage_path, :base_url]
+  defstruct [:storage_path, :base_url]
 
-  alias FileStore.Stat
-  alias FileStore.Utils
+  @doc "Create a new disk adapter"
+  @spec new(keyword) :: FileStore.t()
+  def new(opts) do
+    struct(__MODULE__, opts)
+  end
 
   @doc "Get an the path for a given key."
   @spec join(FileStore.t(), binary) :: Path.t()
   def join(store, key) do
-    store |> get_storage_path() |> Path.join(key)
+    Path.join(store.storage_path, key)
   end
 
-  @impl true
-  def get_public_url(store, key, _opts \\ []) do
-    store
-    |> get_base_url()
-    |> URI.parse()
-    |> Utils.append_path(key)
-    |> URI.to_string()
-  end
+  defimpl FileStore do
+    alias FileStore.Stat
+    alias FileStore.Utils
+    alias FileStore.Adapters.Disk
 
-  @impl true
-  def get_signed_url(store, key, opts \\ []) do
-    {:ok, get_public_url(store, key, opts)}
-  end
-
-  @impl true
-  def stat(store, key) do
-    with path <- join(store, key),
-         {:ok, stat} <- File.stat(path),
-         {:ok, etag} <- FileStore.Stat.checksum_file(path) do
-      {:ok, %Stat{key: key, size: stat.size, etag: etag}}
+    def get_public_url(store, key, _opts) do
+      store.base_url
+      |> URI.parse()
+      |> Utils.append_path(key)
+      |> URI.to_string()
     end
-  end
 
-  @impl true
-  def delete(store, key) do
-    case File.rm(join(store, key)) do
-      :ok -> :ok
-      {:error, reason} when reason in [:enoent, :enotdir] -> :ok
-      {:error, reason} -> {:error, reason}
+    def get_signed_url(store, key, opts) do
+      {:ok, get_public_url(store, key, opts)}
     end
-  end
 
-  @impl true
-  def write(store, key, content) do
-    with {:ok, path} <- expand(store, key) do
-      File.write(path, content)
+    def stat(store, key) do
+      with path <- Disk.join(store, key),
+           {:ok, stat} <- File.stat(path),
+           {:ok, etag} <- FileStore.Stat.checksum_file(path) do
+        {:ok, %Stat{key: key, size: stat.size, etag: etag}}
+      end
     end
-  end
 
-  @impl true
-  def read(store, key) do
-    store |> join(key) |> File.read()
-  end
-
-  @impl true
-  def upload(store, source, key) do
-    with {:ok, dest} <- expand(store, key),
-         {:ok, _} <- File.copy(source, dest),
-         do: :ok
-  end
-
-  @impl true
-  def download(store, key, dest) do
-    with {:ok, source} <- expand(store, key),
-         {:ok, _} <- File.copy(source, dest),
-         do: :ok
-  end
-
-  @impl true
-  def list!(store, opts \\ []) do
-    path = get_storage_path(store)
-    prefix = Keyword.get(opts, :prefix, "")
-
-    path
-    |> Path.join(prefix)
-    |> Path.join("**/*")
-    |> Path.wildcard(match_dot: true)
-    |> Stream.reject(&File.dir?/1)
-    |> Stream.map(&Path.relative_to(&1, path))
-  end
-
-  defp expand(store, key) do
-    with path <- join(store, key),
-         dir <- Path.dirname(path),
-         :ok <- File.mkdir_p(dir),
-         do: {:ok, path}
-  end
-
-  defp get_storage_path(store) do
-    case Map.fetch(store.config, :storage_path) do
-      {:ok, path} -> path
-      :error -> raise "Disk storage expects a `:storage_path`."
+    def delete(store, key) do
+      case File.rm(Disk.join(store, key)) do
+        :ok -> :ok
+        {:error, reason} when reason in [:enoent, :enotdir] -> :ok
+        {:error, reason} -> {:error, reason}
+      end
     end
-  end
 
-  defp get_base_url(store) do
-    case Map.fetch(store.config, :base_url) do
-      {:ok, url} -> url
-      :error -> raise "Disk storage expects a `:base_url`."
+    def write(store, key, content) do
+      with {:ok, path} <- expand(store, key) do
+        File.write(path, content)
+      end
+    end
+
+    def read(store, key) do
+      store |> Disk.join(key) |> File.read()
+    end
+
+    def upload(store, source, key) do
+      with {:ok, dest} <- expand(store, key),
+           {:ok, _} <- File.copy(source, dest),
+           do: :ok
+    end
+
+    def download(store, key, dest) do
+      with {:ok, source} <- expand(store, key),
+           {:ok, _} <- File.copy(source, dest),
+           do: :ok
+    end
+
+    def list!(store, opts) do
+      prefix = Keyword.get(opts, :prefix, "")
+
+      store.storage_path
+      |> Path.join(prefix)
+      |> Path.join("**/*")
+      |> Path.wildcard(match_dot: true)
+      |> Stream.reject(&File.dir?/1)
+      |> Stream.map(&Path.relative_to(&1, store.storage_path))
+    end
+
+    defp expand(store, key) do
+      with path <- Disk.join(store, key),
+           dir <- Path.dirname(path),
+           :ok <- File.mkdir_p(dir),
+           do: {:ok, path}
     end
   end
 end

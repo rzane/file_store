@@ -33,12 +33,11 @@ end
 Configure a new store:
 
 ```elixir
-iex> store = FileStore.new(
-...>   adapter: FileStore.Adapters.Disk,
+iex> store = FileStore.Adapters.Disk.new(
 ...>   storage_path: "/path/to/store/files",
 ...>   base_url: "http://example.com/files/"
 ...> )
-%FileStore{...}
+%FileStore.Adapters.Disk{...}
 ```
 
 Write a file to the store:

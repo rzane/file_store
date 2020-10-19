@@ -11,7 +11,7 @@ defmodule FileStore.Adapters.S3Test do
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
     {:ok, _} = ensure_bucket_exists()
-    {:ok, store: FileStore.new(adapter: S3, bucket: @bucket)}
+    {:ok, store: S3.new(bucket: @bucket)}
   end
 
   test "get_public_url/2", %{store: store} do
@@ -48,7 +48,7 @@ defmodule FileStore.Adapters.S3Test do
 
   describe "with a prefix" do
     setup do
-      {:ok, store: FileStore.new(adapter: S3, bucket: @bucket, prefix: @prefix)}
+      {:ok, store: S3.new(bucket: @bucket, prefix: @prefix)}
     end
 
     test "get_public_url/2", %{store: store} do

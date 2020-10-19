@@ -4,8 +4,8 @@ defmodule FileStore.Adapters.Null do
 
   ### Example
 
-      iex> store = FileStore.new(adapter: FileStore.Adapters.Null)
-      %FileStore{...}
+      iex> store = FileStore.Adapters.Null.new()
+      %FileStore.Adapters.Null{...}
 
       iex> FileStore.write(store, "foo", "hello world")
       :ok
@@ -15,34 +15,25 @@ defmodule FileStore.Adapters.Null do
 
   """
 
-  @behaviour FileStore.Adapter
+  defstruct []
 
-  alias FileStore.Stat
+  @doc "Creates a new null adapter"
+  @spec new(keyword) :: FileStore.t()
+  def new(opts \\ []) do
+    struct(__MODULE__, opts)
+  end
 
-  @impl true
-  def get_public_url(_store, key, _opts \\ []), do: key
+  defimpl FileStore do
+    alias FileStore.Stat
 
-  @impl true
-  def get_signed_url(_store, key, _opts \\ []), do: {:ok, key}
-
-  @impl true
-  def stat(_store, key), do: {:ok, %Stat{key: key, size: 0, etag: Stat.checksum("")}}
-
-  @impl true
-  def delete(_store, _key), do: :ok
-
-  @impl true
-  def upload(_store, _source, _key), do: :ok
-
-  @impl true
-  def download(_store, _key, _destination), do: :ok
-
-  @impl true
-  def write(_store, _key, _content), do: :ok
-
-  @impl true
-  def read(_store, _key), do: {:ok, ""}
-
-  @impl true
-  def list!(_store, _opts \\ []), do: Stream.into([], [])
+    def get_public_url(_store, key, _opts), do: key
+    def get_signed_url(_store, key, _opts), do: {:ok, key}
+    def stat(_store, key), do: {:ok, %Stat{key: key, size: 0, etag: Stat.checksum("")}}
+    def delete(_store, _key), do: :ok
+    def upload(_store, _source, _key), do: :ok
+    def download(_store, _key, _destination), do: :ok
+    def write(_store, _key, _content), do: :ok
+    def read(_store, _key), do: {:ok, ""}
+    def list!(_store, _opts), do: Stream.into([], [])
+  end
 end
