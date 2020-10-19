@@ -50,7 +50,7 @@ if Code.ensure_loaded?(ExAws.S3) do
       alias FileStore.Stat
       alias FileStore.Utils
 
-      def get_public_url(store, key, _opts \\ []) do
+      def get_public_url(store, key, _opts) do
         config = get_config(store)
 
         uri = %URI{
@@ -63,7 +63,7 @@ if Code.ensure_loaded?(ExAws.S3) do
         URI.to_string(uri)
       end
 
-      def get_signed_url(store, key, opts \\ []) do
+      def get_signed_url(store, key, opts) do
         config = get_config(store)
         key = put_prefix(store, key)
         opts = Keyword.take(opts, [:expires_in])
@@ -124,7 +124,7 @@ if Code.ensure_loaded?(ExAws.S3) do
         |> acknowledge(store)
       end
 
-      def list!(store, opts \\ []) do
+      def list!(store, opts) do
         prefix = put_prefix(store, opts[:prefix])
 
         store.bucket
