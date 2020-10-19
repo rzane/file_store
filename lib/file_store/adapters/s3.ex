@@ -5,15 +5,7 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     ### Dependencies
 
-    To use this adapter, you'll need to install the following dependencies:
-
-        def deps do
-          [
-            {:ex_aws_s3, "~> 2.0"},
-            {:hackney, ">= 0.0.0"},
-            {:sweet_xml, ">= 0.0.0"}
-          ]
-        end
+    To use this adapter, you'll need to install and configure `ExAws.S3`.
 
     ### Configuration
 
@@ -21,7 +13,7 @@ if Code.ensure_loaded?(ExAws.S3) do
         is required.
 
       * `ex_aws` - A keyword list of options that can be
-        used to configure `ExAws`.
+        used to override the default configuration for `ExAws`.
 
       * `prefix` - An optional prefix for the FileStore
         that acts like a parent directory. If the `prefix`
