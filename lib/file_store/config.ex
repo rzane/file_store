@@ -48,9 +48,13 @@ defmodule FileStore.Config do
           unquote(opts)
           |> Keyword.merge(config)
           |> init()
-          |> Keyword.pop!(:adapter)
+          |> Keyword.pop(:adapter)
 
-        adapter.new(config)
+        if adapter do
+          adapter.new(config)
+        else
+          raise "Adapter not specified in #{__MODULE__} configuration"
+        end
       end
 
       @spec stat(binary()) :: {:ok, FileStore.Stat.t()} | {:error, term()}
