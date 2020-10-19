@@ -5,26 +5,15 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     ### Dependencies
 
-    To use this adapter, you'll need to install the following dependencies:
-
-        def deps do
-          [
-            {:ex_aws_s3, "~> 2.0"},
-            {:hackney, ">= 0.0.0"},
-            {:sweet_xml, ">= 0.0.0"}
-          ]
-        end
+    To use this adapter, you'll need to install and configure `ExAws.S3`.
 
     ### Configuration
 
       * `bucket` - The name of your S3 bucket. This option
         is required.
 
-      * `base_url` - The base URL that should be used for
-        generating the public URLs to your files.
-
       * `ex_aws` - A keyword list of options that can be
-        used to configure `ExAws`.
+        used to override the default configuration for `ExAws`.
 
       * `prefix` - An optional prefix for the FileStore
         that acts like a parent directory. If the `prefix`
@@ -56,14 +45,24 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     @impl true
     def get_public_url(store, key, _opts \\ []) do
-      store
-      |> get_base_url()
-      |> URI.merge(prefix_key(store, key))
-      |> URI.to_string()
+      config = get_config(store)
+      bucket = get_bucket(store)
+
+      uri = %URI{
+        scheme: String.trim_trailing(config[:scheme], "://"),
+        host: bucket <> "." <> config[:host],
+        port: config[:port],
+        path: "/" <> prefix_key(store, key)
+      }
+
+      URI.to_string(uri)
     end
 
     @impl true
     def get_signed_url(store, key, opts \\ []) do
+      opts = Keyword.take(opts, [:expires_in])
+      opts = Keyword.put(opts, :virtual_host, true)
+
       store
       |> get_config()
       |> ExAws.S3.presigned_url(:get, get_bucket(store), prefix_key(store, key), opts)
@@ -155,12 +154,6 @@ if Code.ensure_loaded?(ExAws.S3) do
       end
     end
 
-    defp get_base_url(store) do
-      Map.get_lazy(store, :base_url, fn ->
-        "https://#{get_bucket(store)}.s3-#{get_region(store)}.amazonaws.com"
-      end)
-    end
-
     defp get_bucket(store) do
       case Map.fetch(store.config, :bucket) do
         {:ok, bucket} -> bucket
@@ -168,7 +161,6 @@ if Code.ensure_loaded?(ExAws.S3) do
       end
     end
 
-    defp get_region(store), do: store |> get_config() |> Map.fetch!(:region)
     defp get_config(store), do: ExAws.Config.new(:s3, get_overrides(store))
     defp get_overrides(store), do: Map.get(store.config, :ex_aws, [])
     defp get_prefix(store), do: Map.get(store.config, :prefix)
