@@ -28,6 +28,17 @@ defmodule FileStore.AdapterCase do
         end
       end
 
+      describe "read/3" do
+        test "reads a file", %{store: store} do
+          assert :ok = FileStore.write(store, "foo", "bar")
+          assert {:ok, "bar"} = FileStore.read(store, "foo")
+        end
+
+        test "errors when file does not exist", %{store: store} do
+          assert {:error, _} = FileStore.read(store, "does-not-exist")
+        end
+      end
+
       describe "upload/3" do
         test "uploads a file", %{store: store} do
           bar = write("bar.txt", "bar")
