@@ -43,17 +43,18 @@ defmodule FileStore.Config do
       @spec new() :: FileStore.t()
       def new do
         config = Application.get_env(unquote(otp_app), __MODULE__, [])
+        config = unquote(opts) |> Keyword.merge(config) |> init()
+        {middlewares, config} = Keyword.pop(config, :middleware, [])
 
-        {adapter, config} =
-          unquote(opts)
-          |> Keyword.merge(config)
-          |> init()
-          |> Keyword.pop(:adapter)
+        case Keyword.pop(config, :adapter) do
+          {nil, _} ->
+            raise "Adapter not specified in #{__MODULE__} configuration"
 
-        if adapter do
-          adapter.new(config)
-        else
-          raise "Adapter not specified in #{__MODULE__} configuration"
+          {adapter, config} ->
+            Enum.reduce(middlewares, adapter.new(config), fn
+              {middleware, args}, store -> middleware.new(store, args)
+              middleware, store -> middleware.new(store)
+            end)
         end
       end
 
