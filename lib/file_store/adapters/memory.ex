@@ -98,7 +98,11 @@ defmodule FileStore.Adapters.Memory do
     end
 
     def read(store, key) do
-      Agent.get(store.name, &Map.fetch(&1, key))
+      Agent.get(store.name, fn state ->
+        with :error <- Map.fetch(state, key) do
+          {:error, :enoent}
+        end
+      end)
     end
 
     def upload(store, source, key) do
@@ -108,9 +112,8 @@ defmodule FileStore.Adapters.Memory do
     end
 
     def download(store, key, destination) do
-      case read(store, key) do
-        {:ok, data} -> File.write(destination, data)
-        :error -> {:error, :enoent}
+      with {:ok, data} <- read(store, key) do
+        File.write(destination, data)
       end
     end
 
