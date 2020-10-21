@@ -12,17 +12,34 @@ defmodule FileStore.Adapters.S3Test do
     {:ok, store: S3.new(bucket: @bucket)}
   end
 
-  test "get_public_url/2", %{store: store} do
+  test "get_public_url/3", %{store: store} do
     assert FileStore.get_public_url(store, "foo") == @url
   end
 
-  test "get_signed_url/2", %{store: store} do
+  test "get_public_url/3 with query params", %{store: store} do
+    opts = [content_type: "text/plain", disposition: "attachment"]
+    url = FileStore.get_public_url(store, "foo", opts)
+    assert omit_query(url) == @url
+    assert get_query(url, "response-content-type") == "text/plain"
+    assert get_query(url, "response-content-disposition") == "attachment"
+  end
+
+  test "get_signed_url/3", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo")
     assert omit_query(url) == @url
     assert get_query(url, "X-Amz-Expires") == "3600"
   end
 
-  test "get_signed_url/2 with custom expiration", %{store: store} do
+  test "get_signed_url/3 with query params", %{store: store} do
+    opts = [content_type: "text/plain", disposition: "attachment"]
+    assert {:ok, url} = FileStore.get_signed_url(store, "foo", opts)
+    assert omit_query(url) == @url
+    assert get_query(url, "X-Amz-Expires") == "3600"
+    assert get_query(url, "response-content-type") == "text/plain"
+    assert get_query(url, "response-content-disposition") == "attachment"
+  end
+
+  test "get_signed_url/3 with custom expiration", %{store: store} do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
     assert omit_query(url) == @url
     assert get_query(url, "X-Amz-Expires") == "4000"
@@ -42,21 +59,6 @@ defmodule FileStore.Adapters.S3Test do
     refute "bar" in keys
     refute "foo" in keys
     assert "foo/bar" in keys
-  end
-
-  defp get_query(url, param) do
-    url
-    |> URI.parse()
-    |> Map.fetch!(:query)
-    |> URI.decode_query()
-    |> Map.fetch!(param)
-  end
-
-  defp omit_query(url) do
-    url
-    |> URI.parse()
-    |> Map.put(:query, nil)
-    |> URI.to_string()
   end
 
   defp ensure_bucket_exists do

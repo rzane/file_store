@@ -66,10 +66,13 @@ defmodule FileStore.Adapters.Memory do
     alias FileStore.Stat
     alias FileStore.Utils
 
-    def get_public_url(store, key, _opts) do
+    def get_public_url(store, key, opts) do
+      query = Keyword.take(opts, [:content_type, :disposition])
+
       store.base_url
       |> URI.parse()
       |> Utils.append_path(key)
+      |> Utils.put_query(query)
       |> URI.to_string()
     end
 

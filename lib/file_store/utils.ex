@@ -18,4 +18,11 @@ defmodule FileStore.Utils do
   def append_path(%URI{path: a} = uri, b) do
     %URI{uri | path: join_absolute(a, b)}
   end
+
+  def put_query(%URI{query: nil} = uri, query) do
+    %URI{uri | query: encode_query(query)}
+  end
+
+  def encode_query([]), do: nil
+  def encode_query(query), do: URI.encode_query(query)
 end

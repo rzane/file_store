@@ -41,15 +41,25 @@ if Code.ensure_loaded?(ExAws.S3) do
 
     defimpl FileStore do
       alias FileStore.Stat
+      alias FileStore.Utils
 
-      def get_public_url(store, key, _opts) do
+      @query_params [
+        content_type: "response-content-type",
+        disposition: "response-content-disposition"
+      ]
+
+      def get_public_url(store, key, opts) do
         config = get_config(store)
+        host = store.bucket <> "." <> config[:host]
+        query = Utils.encode_query(get_url_query(opts))
+        scheme = String.trim_trailing(config[:scheme], "://")
 
         uri = %URI{
-          scheme: String.trim_trailing(config[:scheme], "://"),
-          host: store.bucket <> "." <> config[:host],
+          scheme: scheme,
+          host: host,
           port: config[:port],
-          path: "/" <> key
+          path: "/" <> key,
+          query: query
         }
 
         URI.to_string(uri)
@@ -57,8 +67,13 @@ if Code.ensure_loaded?(ExAws.S3) do
 
       def get_signed_url(store, key, opts) do
         config = get_config(store)
-        opts = Keyword.take(opts, [:expires_in])
-        opts = Keyword.put(opts, :virtual_host, true)
+
+        opts =
+          opts
+          |> Keyword.take([:expires_in])
+          |> Keyword.put(:virtual_host, true)
+          |> Keyword.put(:query_params, get_url_query(opts))
+
         ExAws.S3.presigned_url(config, :get, store.bucket, key, opts)
       end
 
@@ -133,6 +148,13 @@ if Code.ensure_loaded?(ExAws.S3) do
           {:ok, _} -> :ok
           {:error, reason} -> {:error, reason}
         end
+      end
+
+      defp get_url_query(opts) do
+        for {key, query_param} <- @query_params,
+            value = Keyword.get(opts, key),
+            into: [],
+            do: {query_param, value}
       end
 
       defp get_config(store), do: ExAws.Config.new(:s3, store.ex_aws)
