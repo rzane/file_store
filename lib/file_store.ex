@@ -17,7 +17,18 @@ defprotocol FileStore do
   """
 
   @type key :: binary()
-  @type list_options :: [prefix: binary]
+  @type list_opts :: [{:prefix, binary()}]
+
+  @type public_url_opts :: [
+          {:content_type, binary()}
+          | {:disposition, binary()}
+        ]
+
+  @type signed_url_opts :: [
+          {:content_type, binary()}
+          | {:disposition, binary()}
+          | {:expires_in, integer()}
+        ]
 
   @doc """
   Write a file to the store. If a file with the given `key`
@@ -96,18 +107,29 @@ defprotocol FileStore do
   @doc """
   Get URL for your file, assuming that the file is publicly accessible.
 
+  ## Options
+
+    * `:content_type` - Force the `Content-Type` of the response.
+    * `:disposition` - Force the `Content-Disposition` of the response.
+
   ## Examples
 
       iex> FileStore.get_public_url(store, "foo")
       "https://mybucket.s3-us-east-1.amazonaws.com/foo"
 
   """
-  @spec get_public_url(t, key, keyword) :: binary
+  @spec get_public_url(t, key, public_url_opts) :: binary
   def get_public_url(store, key, opts \\ [])
 
   @doc """
   Generate a signed URL for your file. Any user with this URL should be able
   to access the file.
+
+  ## Options
+
+    * `:expires_in` - The number of seconds before the URL expires.
+    * `:content_type` - Force the `Content-Type` of the response.
+    * `:disposition` - Force the `Content-Disposition` of the response.
 
   ## Examples
 
@@ -115,7 +137,7 @@ defprotocol FileStore do
       {:ok, "https://s3.amazonaws.com/mybucket/foo?X-AMZ-Expires=3600&..."}
 
   """
-  @spec get_signed_url(t, key, keyword) :: {:ok, binary} | {:error, term}
+  @spec get_signed_url(t, key, signed_url_opts) :: {:ok, binary} | {:error, term}
   def get_signed_url(store, key, opts \\ [])
 
   @doc """
@@ -134,6 +156,6 @@ defprotocol FileStore do
       ["foo/bar"]
 
   """
-  @spec list!(t, list_options) :: Enumerable.t()
+  @spec list!(t, list_opts) :: Enumerable.t()
   def list!(store, opts \\ [])
 end

@@ -38,4 +38,11 @@ defmodule FileStore.UtilsTest do
              |> URI.parse()
              |> Utils.append_path("/bar")
   end
+
+  test "put_query/2" do
+    assert %URI{query: "foo=bar"} =
+             "http://example.com"
+             |> URI.parse()
+             |> Utils.put_query(foo: "bar")
+  end
 end

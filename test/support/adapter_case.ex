@@ -155,4 +155,19 @@ defmodule FileStore.AdapterCase do
       %URI{scheme: scheme} -> scheme =~ ~r"^https?$"
     end
   end
+
+  def get_query(url, param) do
+    url
+    |> URI.parse()
+    |> Map.fetch!(:query)
+    |> URI.decode_query()
+    |> Map.fetch!(param)
+  end
+
+  def omit_query(url) do
+    url
+    |> URI.parse()
+    |> Map.put(:query, nil)
+    |> URI.to_string()
+  end
 end
