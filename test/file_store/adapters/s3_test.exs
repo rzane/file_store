@@ -4,11 +4,11 @@ defmodule FileStore.Adapters.S3Test do
 
   @region "us-east-1"
   @bucket "filestore"
-  @url "http://filestore.localhost:4569/foo"
+  @url "http://filestore.localhost:9000/foo"
 
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
-    {:ok, _} = ensure_bucket_exists()
+    prepare_bucket!()
     {:ok, store: S3.new(bucket: @bucket)}
   end
 
@@ -45,35 +45,31 @@ defmodule FileStore.Adapters.S3Test do
     assert get_query(url, "X-Amz-Expires") == "4000"
   end
 
-  test "list/2 respects trailing slashes", %{store: store} do
-    assert :ok = FileStore.write(store, "bar", "")
-    assert :ok = FileStore.write(store, "foo", "")
-    assert :ok = FileStore.write(store, "foo/bar", "")
-
-    keys = Enum.to_list(FileStore.list!(store, prefix: "foo"))
-    refute "bar" in keys
-    assert "foo" in keys
-    assert "foo/bar" in keys
-
-    keys = Enum.to_list(FileStore.list!(store, prefix: "foo/"))
-    refute "bar" in keys
-    refute "foo" in keys
-    assert "foo/bar" in keys
-  end
-
-  defp ensure_bucket_exists do
-    @bucket
-    |> ExAws.S3.head_bucket()
-    |> ExAws.request()
-    |> case do
-      {:ok, resp} -> {:ok, resp}
-      {:error, _} -> create_bucket()
-    end
-  end
-
-  defp create_bucket do
+  defp prepare_bucket! do
     @bucket
     |> ExAws.S3.put_bucket(@region)
     |> ExAws.request()
+    |> case do
+      {:ok, _} -> :ok
+      {:error, {:http_error, 409, _}} -> clean_bucket!()
+      {:error, reason} -> raise "Failed to create bucket, error: #{inspect(reason)}"
+    end
+  end
+
+  defp clean_bucket! do
+    @bucket
+    |> ExAws.S3.delete_all_objects(list_all_keys())
+    |> ExAws.request()
+    |> case do
+      {:ok, _} -> :ok
+      {:error, reason} -> raise "Failed to clean bucket, error: #{inspect(reason)}"
+    end
+  end
+
+  defp list_all_keys do
+    @bucket
+    |> ExAws.S3.list_objects()
+    |> ExAws.stream!()
+    |> Stream.map(& &1.key)
   end
 end

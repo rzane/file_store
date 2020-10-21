@@ -129,3 +129,14 @@ iex> MyApp.Storage.write("foo", "hello world")
 iex> MyApp.Storage.read("foo")
 {:ok, "hello world"}
 ```
+
+## Contributing
+
+In order to test the S3 adapter, we run Minio locally in a Docker container. To start the Minio
+service, run the following script:
+
+    $ bin/start
+
+To run the test suite, run:
+
+    $ bin/test

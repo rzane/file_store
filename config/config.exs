@@ -4,15 +4,15 @@ use Mix.Config
 
 config :ex_aws,
   json_codec: Jason,
-  access_key_id: "foo",
-  secret_access_key: "bar"
+  access_key_id: "development",
+  secret_access_key: "development"
 
 config :ex_aws, :retries, max_attempts: 1
 
 config :ex_aws, :s3,
   scheme: "http://",
   host: "localhost",
-  port: 4569,
+  port: 9000,
   region: "us-east-1"
 
 # This configuration is loaded before any dependency and is restricted
