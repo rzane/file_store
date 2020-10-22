@@ -99,6 +99,30 @@ defmodule FileStore.AdapterCase do
         end
       end
 
+      describe "delete_all/2" do
+        test "deletes all files", %{store: store} do
+          assert :ok = FileStore.write(store, "foo", "")
+          assert :ok = FileStore.write(store, "bar/buzz", "")
+          assert :ok = FileStore.delete_all(store)
+          assert {:error, _} = FileStore.stat(store, "foo")
+          assert {:error, _} = FileStore.stat(store, "bar/buzz")
+        end
+
+        test "deletes files under prefix", %{store: store} do
+          assert :ok = FileStore.write(store, "foo", "")
+          assert :ok = FileStore.write(store, "bar/buzz", "")
+          assert :ok = FileStore.write(store, "bar/baz", "")
+          assert :ok = FileStore.delete_all(store, prefix: "bar")
+          assert {:ok, _} = FileStore.stat(store, "foo")
+          assert {:error, _} = FileStore.stat(store, "bar/buzz")
+          assert {:error, _} = FileStore.stat(store, "bar/baz")
+        end
+
+        test "indicates success for non-existent keys", %{store: store} do
+          assert :ok = FileStore.delete_all(store, prefix: "non-existent")
+        end
+      end
+
       describe "get_public_url/2" do
         test "returns a URL", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
@@ -115,7 +139,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "list/2" do
+      describe "list!/2" do
         test "lists keys in the store", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "")
           assert "foo" in Enum.to_list(FileStore.list!(store))

@@ -18,6 +18,7 @@ defprotocol FileStore do
 
   @type key :: binary()
   @type list_opts :: [{:prefix, binary()}]
+  @type delete_all_opts :: [{:prefxix, binary()}]
 
   @type public_url_opts :: [
           {:content_type, binary()}
@@ -103,6 +104,25 @@ defprotocol FileStore do
   """
   @spec delete(t, key) :: :ok | {:error, term}
   def delete(store, key)
+
+  @doc """
+  Delete files in bulk.
+
+  ## Options
+
+    * `:prefix` - Only delete keys matching the given prefix.
+
+  ## Examples
+
+    iex> FileStore.delete_all(store)
+    :ok
+
+    iex> FileStore.delete_all(store, prefix: "foo/")
+    :ok
+
+  """
+  @spec delete_all(t, delete_all_opts) :: :ok | {:error, term}
+  def delete_all(store, opts \\ [])
 
   @doc """
   Get URL for your file, assuming that the file is publicly accessible.

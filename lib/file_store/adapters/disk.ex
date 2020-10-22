@@ -76,6 +76,18 @@ defmodule FileStore.Adapters.Disk do
       end
     end
 
+    def delete_all(store, opts) do
+      prefix = Keyword.get(opts, :prefix, "")
+
+      store.storage_path
+      |> Path.join(prefix)
+      |> File.rm_rf()
+      |> case do
+        {:ok, _} -> :ok
+        {:error, reason, _file} -> {:error, reason}
+      end
+    end
+
     def write(store, key, content) do
       with {:ok, path} <- expand(store, key) do
         File.write(path, content)
