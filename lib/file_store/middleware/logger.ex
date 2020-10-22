@@ -45,6 +45,12 @@ defmodule FileStore.Middleware.Logger do
       |> log("DELETE", key: key)
     end
 
+    def delete_all(store, opts) do
+      store.__next__
+      |> FileStore.delete_all(opts)
+      |> log("DELETE ALL", opts)
+    end
+
     def get_public_url(store, key, opts) do
       FileStore.get_public_url(store.__next__, key, opts)
     end

@@ -21,6 +21,10 @@ defmodule FileStore.Middleware.Prefix do
       FileStore.delete(store.__next__, put_prefix(key, store))
     end
 
+    def delete_all(store, opts) do
+      FileStore.delete_all(store.__next__, put_prefix(opts, store))
+    end
+
     def write(store, key, content) do
       FileStore.write(store.__next__, put_prefix(key, store), content)
     end
@@ -46,11 +50,13 @@ defmodule FileStore.Middleware.Prefix do
     end
 
     def list!(store, opts) do
-      opts = update_key(opts, :prefix, &put_prefix(&1, store))
-
       store.__next__
-      |> FileStore.list!(opts)
+      |> FileStore.list!(put_prefix(opts, store))
       |> Stream.map(&remove_prefix(&1, store))
+    end
+
+    defp put_prefix(opts, store) when is_list(opts) do
+      Keyword.update(opts, :prefix, store.prefix, &put_prefix(&1, store))
     end
 
     defp put_prefix(key, store) do
@@ -61,13 +67,6 @@ defmodule FileStore.Middleware.Prefix do
       key
       |> String.trim_leading(store.prefix)
       |> String.trim_leading("/")
-    end
-
-    defp update_key(opts, key, fun) do
-      case Keyword.fetch(opts, key) do
-        {:ok, value} -> Keyword.put(opts, key, fun.(value))
-        :error -> opts
-      end
     end
   end
 end

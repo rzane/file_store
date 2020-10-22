@@ -99,6 +99,14 @@ if Code.ensure_loaded?(ExAws.S3) do
         |> acknowledge(store)
       end
 
+      def delete_all(store, opts) do
+        store.bucket
+        |> ExAws.S3.delete_all_objects(list!(store, opts))
+        |> acknowledge(store)
+      rescue
+        error -> {:error, error}
+      end
+
       def write(store, key, content) do
         store.bucket
         |> ExAws.S3.put_object(key, content)

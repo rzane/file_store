@@ -96,6 +96,16 @@ defmodule FileStore.Adapters.Memory do
       Agent.update(store.name, &Map.delete(&1, key))
     end
 
+    def delete_all(store, opts) do
+      prefix = Keyword.get(opts, :prefix, "")
+
+      Agent.update(store.name, fn state ->
+        state
+        |> Enum.reject(fn {key, _} -> String.starts_with?(key, prefix) end)
+        |> Map.new()
+      end)
+    end
+
     def write(store, key, content) do
       Agent.update(store.name, &Map.put(&1, key, content))
     end
