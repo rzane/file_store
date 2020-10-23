@@ -78,6 +78,11 @@ defmodule FileStore.Config do
         FileStore.delete(new(), key)
       end
 
+      @spec delete_all(FileStore.delete_all_opts()) :: :ok | {:error, term()}
+      def delete_all(opts \\ []) do
+        FileStore.delete_all(new(), opts)
+      end
+
       @spec upload(Path.t(), binary()) :: :ok | {:error, term()}
       def upload(source, key) do
         FileStore.upload(new(), source, key)
