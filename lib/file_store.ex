@@ -18,7 +18,7 @@ defprotocol FileStore do
 
   @type key :: binary()
   @type list_opts :: [{:prefix, binary()}]
-  @type delete_all_opts :: [{:prefxix, binary()}]
+  @type delete_all_opts :: [{:prefix, binary()}]
 
   @type public_url_opts :: [
           {:content_type, binary()}
