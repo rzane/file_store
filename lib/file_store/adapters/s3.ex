@@ -36,6 +36,10 @@ if Code.ensure_loaded?(ExAws.S3) do
     @doc "Create a new S3 adapter"
     @spec new(keyword) :: FileStore.t()
     def new(opts) do
+      if is_nil(opts[:bucket]) do
+        raise "missing configuration: :bucket"
+      end
+
       struct(__MODULE__, opts)
     end
 

@@ -48,6 +48,10 @@ defmodule FileStore.Adapters.Memory do
   @doc "Creates a new memory adapter"
   @spec new(keyword) :: FileStore.t()
   def new(opts) do
+    if is_nil(opts[:base_url]) do
+      raise "missing configuration: :base_url"
+    end
+
     struct(__MODULE__, opts)
   end
 
