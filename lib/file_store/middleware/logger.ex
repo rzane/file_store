@@ -1,4 +1,10 @@
 defmodule FileStore.Middleware.Logger do
+  @moduledoc """
+  This middleware allows you to log all operations.
+
+  See the documentation for `FileStore.Middleware` for more information.
+  """
+
   @enforce_keys [:__next__]
   defstruct [:__next__]
 

@@ -1,4 +1,17 @@
 defmodule FileStore.Middleware.Prefix do
+  @moduledoc """
+  This module adds a prefix to all operations.
+
+      store
+      |> FileStore.Middleware.new(prefix: "companies/logos")
+      |> FileStore.read("example.jpg")
+
+  In the example above, the key `example.jpg` would become
+  `companies/logos/example.jpg`.
+
+  See the documentation for `FileStore.Middleware` for more information.
+  """
+
   @enforce_keys [:__next__, :prefix]
   defstruct [:__next__, :prefix]
 

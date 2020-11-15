@@ -33,11 +33,10 @@ end
 Configure a new store:
 
 ```elixir
-iex> store = FileStore.Adapters.Disk.new(
-...>   storage_path: "/path/to/store/files",
-...>   base_url: "http://example.com/files/"
-...> )
-%FileStore.Adapters.Disk{...}
+store = FileStore.Adapters.Disk.new(
+  storage_path: "/path/to/store/files",
+  base_url: "http://example.com/files/"
+)
 ```
 
 Write a file to the store:
@@ -103,6 +102,34 @@ iex> FileStore.delete(store, "bar")
 :ok
 ```
 
+## Middleware
+
+#### Logger
+
+To enable logging, just wrap your store with the logging middleware:
+
+```elixir
+FileStore.Adapters.Disk.new([...])
+|> FileStore.Middleware.Logger.new(store)
+|> FileStore.read("test.txt")
+# 02:37:30.724 [debug] READ OK key="test.txt"
+{:ok, "hello"}
+```
+
+#### Errors
+
+#### Prefix
+
+The prefix adapter allows you to prepend a prefix to all operations.
+
+```elixir
+FileStore.Adapters.Disk.new([...])
+|> FileStore.Middleware.Prefix.new(prefix: "company/logos")
+|> FileStore.read(store, "bizcorp.jpg")
+```
+
+In the example above, `bizcorp.jpg` was translated to `companies/logos/bizcorp.jpg`.
+
 ## Creating a store
 
 You can also create a dedicated store in your application.
@@ -117,7 +144,8 @@ You'll need to provide configuration for this module:
 
 ```elixir
 config :my_app, MyApp.Storage,
-  adapter: FileStore.Adapters.Null
+  adapter: FileStore.Adapters.Null,
+  middleware: [FileStore.Middleware.Errors]
 ```
 
 Now, you can interact with your store more conveniently:

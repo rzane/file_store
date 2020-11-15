@@ -1,6 +1,27 @@
 defmodule FileStore.Middleware.Errors do
   @moduledoc """
-  Enhances the file store with better error messages.
+  By default, each adapter will return errors in a different format. This
+  middleware attempts to make the errors returned by this library a little
+  more useful by wrapping them in exception structs:
+
+    * `FileStore.Error`
+    * `FileStore.UploadError`
+    * `FileStore.DownloadError`
+
+  Each of these structs contain `reason` field, where you'll find the original
+  error that was returned by the underlying adapter.
+
+  One nice feature of this middleware is that it makes it easy to raise:
+
+      store
+      |> FileStore.Middleware.Errors.new()
+      |> FileStore.read("example.jpg")
+      |> case do
+        {:ok, data} -> data
+        {:error, error} -> raise error
+      end
+
+  See the documentation for `FileStore.Middleware` for more information.
   """
 
   @enforce_keys [:__next__]

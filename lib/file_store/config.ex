@@ -13,7 +13,16 @@ defmodule FileStore.Config do
   In your config files, you'll need to configure your adapter:
 
       config :my_app, MyApp.Storage,
-        adapter: FileStore.Adapters.Null
+        adapter: FileStore.Adapters.Disk,
+        storage_path: "/path/to/files",
+        base_url: "https://localhost:4000"
+
+  You can also configure any `FileStore.Middleware` here:
+
+      config :my_app, MyApp.Storage,
+        adapter: FileStore.Adapters.Disk,
+        # ...etc...
+        middleware: [FileStore.Middleware.Errors]
 
   If you need to dynamically configure your store at runtime,
   you can implement the `init/1` callback.
