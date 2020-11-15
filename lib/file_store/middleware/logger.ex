@@ -69,32 +69,39 @@ defmodule FileStore.Middleware.Logger do
       FileStore.list!(store.__next__, opts)
     end
 
-    def log(result, msg, meta) do
-      case normalize(result) do
-        :ok ->
-          log_msg(:debug, msg, "OK", meta)
-
-        {:error, extra_meta} ->
-          meta = Keyword.merge(meta, extra_meta)
-          log_msg(:warn, msg, "ERROR", meta)
-      end
-
-      result
+    defp log({:ok, value}, msg, meta) do
+      log(:ok, msg, meta)
+      {:ok, value}
     end
 
-    defp log_msg(level, msg, status, meta) do
-      Logger.log(level, fn -> [msg, ?\s, status, ?\s, inspect_meta(meta)] end)
-    end
-
-    defp normalize(:ok), do: :ok
-    defp normalize({:ok, _}), do: :ok
-    defp normalize(:error), do: {:error, []}
-    defp normalize({:error, reason}), do: {:error, [error: reason]}
-
-    defp inspect_meta(meta) do
-      Enum.map_join(meta, " ", fn {key, value} ->
-        "#{key}=#{inspect(value)}"
+    defp log(:ok, msg, meta) do
+      Logger.log(:debug, fn ->
+        [msg, ?\s, "OK", ?\s, format_meta(meta)]
       end)
+
+      :ok
+    end
+
+    defp log({:error, error}, msg, meta) do
+      Logger.log(:error, fn ->
+        [msg, ?\s, "ERROR", ?\s, format_meta(meta), format_error(error)]
+      end)
+
+      {:error, error}
+    end
+
+    defp format_meta(meta) do
+      Enum.map(meta, fn {key, value} ->
+        [Atom.to_string(key), ?\=, inspect(value)]
+      end)
+    end
+
+    defp format_error(%{__exception__: true} = error) do
+      [?\n, Exception.format(:error, error)]
+    end
+
+    defp format_error(error) do
+      [" error=", inspect(error)]
     end
   end
 end

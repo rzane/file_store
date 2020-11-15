@@ -27,7 +27,7 @@ defmodule FileStore.Middleware.LoggerTest do
   end
 
   defp silence_logger(_) do
-    Logger.configure(level: :error)
+    Logger.configure(level: :none)
 
     on_exit(fn ->
       Logger.configure(level: :debug)
