@@ -8,7 +8,7 @@ defmodule FileStore.MixProject do
     [
       app: :file_store,
       version: @version,
-      elixir: "~> 1.8",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
