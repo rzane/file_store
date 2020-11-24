@@ -102,6 +102,13 @@ iex> FileStore.delete(store, "bar")
 :ok
 ```
 
+Delete files in bulk:
+
+```elixir
+iex> FileStore.delete_all(store, "profile/images/")
+:ok
+```
+
 ## Middleware
 
 #### Logger
@@ -109,23 +116,40 @@ iex> FileStore.delete(store, "bar")
 To enable logging, just wrap your store with the logging middleware:
 
 ```elixir
-FileStore.Adapters.Disk.new([...])
-|> FileStore.Middleware.Logger.new(store)
-|> FileStore.read("test.txt")
+iex> store
+...> |> FileStore.Middleware.Logger.new(store)
+...> |> FileStore.read("test.txt")
 # 02:37:30.724 [debug] READ OK key="test.txt"
 {:ok, "hello"}
 ```
 
 #### Errors
 
-#### Prefix
-
-The prefix adapter allows you to prepend a prefix to all operations.
+The errors middleware will wrap error values:
 
 ```elixir
-FileStore.Adapters.Disk.new([...])
-|> FileStore.Middleware.Prefix.new(prefix: "company/logos")
-|> FileStore.read(store, "bizcorp.jpg")
+iex> store
+...> |> FileStore.Middleware.Errors.new()
+...> |> FileStore.read("bizcorp.jpg")
+{:error, %FileStore.Error{...}}
+```
+
+One of the following structs will be returned:
+
+- `FileStore.Error`
+- `FileStore.UploadError`
+- `FileStore.DownloadError`
+
+Because the error implements the `Exception` behaviour, you can `raise` it.
+
+#### Prefix
+
+The prefix middleware allows you to prepend a prefix to all operations.
+
+```elixir
+iex> store
+...> |> FileStore.Middleware.Prefix.new(prefix: "company/logos")
+...> |> FileStore.read("bizcorp.jpg")
 ```
 
 In the example above, `bizcorp.jpg` was translated to `companies/logos/bizcorp.jpg`.
