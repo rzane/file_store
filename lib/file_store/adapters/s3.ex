@@ -111,9 +111,14 @@ if Code.ensure_loaded?(ExAws.S3) do
         error -> {:error, error}
       end
 
-      def write(store, key, content) do
+      def write(store, key, content, opts \\ []) do
+        opts =
+          opts
+          |> Keyword.take([:content_type, :disposition])
+          |> Utils.rename_key(:disposition, :content_disposition)
+
         store.bucket
-        |> ExAws.S3.put_object(key, content)
+        |> ExAws.S3.put_object(key, content, opts)
         |> acknowledge(store)
       end
 

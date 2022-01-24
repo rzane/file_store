@@ -19,6 +19,10 @@ defprotocol FileStore do
   @type key :: binary()
   @type list_opts :: [{:prefix, binary()}]
   @type delete_all_opts :: [{:prefix, binary()}]
+  @type write_opts :: [
+          {:content_type, binary()}
+          | {:disposition, binary()}
+        ]
 
   @type public_url_opts :: [
           {:content_type, binary()}
@@ -35,14 +39,19 @@ defprotocol FileStore do
   Write a file to the store. If a file with the given `key`
   already exists, it will be overwritten.
 
+  ## Options
+
+      * `:content_type` - Sets the content type hint for the adapter.
+      * `:disposition` - Sets the content disposition hint for the adapter.
+
   ## Examples
 
       iex> FileStore.write(store, "foo", "hello world")
       :ok
 
   """
-  @spec write(t, key, binary) :: :ok | {:error, term}
-  def write(store, key, content)
+  @spec write(t, key, binary, write_opts) :: :ok | {:error, term}
+  def write(store, key, content, opts \\ [])
 
   @doc """
   Read the contents of a file in store into memory.

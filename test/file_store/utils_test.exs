@@ -45,4 +45,18 @@ defmodule FileStore.UtilsTest do
              |> URI.parse()
              |> Utils.put_query(foo: "bar")
   end
+
+  describe "rename_key/3" do
+    test "renames existing key" do
+      assert [changed: :foo] = Utils.rename_key([target: :foo], :target, :changed)
+    end
+
+    test "returns keywords unchanged when target does not exist" do
+      assert [left: :foo] = Utils.rename_key([left: :foo], :target, :changed)
+    end
+
+    test "returns empty keywords" do
+      assert [] = Utils.rename_key([], :target, :changed)
+    end
+  end
 end

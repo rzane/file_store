@@ -33,7 +33,7 @@ defmodule FileStore.Adapters.Null do
     def delete_all(_store, _opts), do: :ok
     def upload(_store, _source, _key), do: :ok
     def download(_store, _key, _destination), do: :ok
-    def write(_store, _key, _content), do: :ok
+    def write(_store, _key, _content, _opts \\ []), do: :ok
     def read(_store, _key), do: {:ok, ""}
     def list!(_store, _opts), do: Stream.into([], [])
   end

@@ -21,9 +21,9 @@ defmodule FileStore.Middleware.Logger do
       |> log("STAT", key: key)
     end
 
-    def write(store, key, content) do
+    def write(store, key, content, opts) do
       store.__next__
-      |> FileStore.write(key, content)
+      |> FileStore.write(key, content, opts)
       |> log("WRITE", key: key)
     end
 

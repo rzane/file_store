@@ -96,7 +96,7 @@ defmodule FileStore.Adapters.Disk do
       end
     end
 
-    def write(store, key, content) do
+    def write(store, key, content, _opts \\ []) do
       with {:ok, path} <- expand(store, key) do
         File.write(path, content)
       end

@@ -25,4 +25,17 @@ defmodule FileStore.Utils do
 
   def encode_query([]), do: nil
   def encode_query(query), do: URI.encode_query(query)
+
+  @spec rename_key(Keyword.t(), term(), term()) :: Keyword.t()
+  def rename_key(opts, key, new_key) do
+    case Keyword.fetch(opts, key) do
+      {:ok, value} ->
+        opts
+        |> Keyword.delete(key)
+        |> Keyword.put(new_key, value)
+
+      :error ->
+        opts
+    end
+  end
 end
