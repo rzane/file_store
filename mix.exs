@@ -42,7 +42,7 @@ defmodule FileStore.MixProject do
 
   defp deps do
     [
-      {:ex_aws_s3, "~> 2.0", optional: true},
+      {:ex_aws_s3, "~> 2.3", optional: true},
       {:hackney, ">= 0.0.0", only: [:dev, :test]},
       {:sweet_xml, ">= 0.0.0", only: [:dev, :test]},
       {:jason, ">= 0.0.0", only: [:dev, :test]},
