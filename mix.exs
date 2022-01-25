@@ -42,13 +42,13 @@ defmodule FileStore.MixProject do
 
   defp deps do
     [
-      {:ex_aws_s3, "~> 2.0", optional: true},
+      {:ex_aws_s3, "~> 2.3", optional: true},
       {:hackney, ">= 0.0.0", only: [:dev, :test]},
       {:sweet_xml, ">= 0.0.0", only: [:dev, :test]},
       {:jason, ">= 0.0.0", only: [:dev, :test]},
-      {:excoveralls, "~> 0.13", only: :test},
-      {:ex_doc, "~> 0.22", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:excoveralls, "~> 0.14", only: :test},
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
 
