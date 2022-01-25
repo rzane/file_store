@@ -90,7 +90,8 @@ if Code.ensure_loaded?(ExAws.S3) do
             headers = Enum.into(headers, %{})
             etag = headers |> Map.get("ETag") |> unwrap_etag()
             size = headers |> Map.get("Content-Length") |> to_integer()
-            {:ok, %Stat{key: key, etag: etag, size: size}}
+            type = headers |> Map.get("Content-Type")
+            {:ok, %Stat{key: key, etag: etag, size: size, type: type}}
 
           {:error, reason} ->
             {:error, reason}

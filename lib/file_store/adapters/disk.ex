@@ -72,7 +72,15 @@ defmodule FileStore.Adapters.Disk do
       with path <- Disk.join(store, key),
            {:ok, stat} <- File.stat(path),
            {:ok, etag} <- FileStore.Stat.checksum_file(path) do
-        {:ok, %Stat{key: key, size: stat.size, etag: etag}}
+        {
+          :ok,
+          %Stat{
+            key: key,
+            size: stat.size,
+            etag: etag,
+            type: "application/octet-stream"
+          }
+        }
       end
     end
 

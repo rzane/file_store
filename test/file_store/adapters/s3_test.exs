@@ -1,6 +1,7 @@
 defmodule FileStore.Adapters.S3Test do
   use FileStore.AdapterCase
   alias FileStore.Adapters.S3
+  alias FileStore.Stat
 
   @region "us-east-1"
   @bucket "filestore"
@@ -43,6 +44,20 @@ defmodule FileStore.Adapters.S3Test do
     assert {:ok, url} = FileStore.get_signed_url(store, "foo", expires_in: 4000)
     assert omit_query(url) == @url
     assert get_query(url, "X-Amz-Expires") == "4000"
+  end
+
+  describe "write/4" do
+    test "sends the content-type with the data written", %{store: store} do
+      :ok = FileStore.write(store, "foo", "{}", content_type: "application/json")
+
+      assert {:ok, %Stat{type: "application/json"}} = FileStore.stat(store, "foo")
+    end
+
+    test "not sending content-type does not return on stat", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+
+      assert {:ok, %Stat{type: "application/octet-stream"}} = FileStore.stat(store, "foo")
+    end
   end
 
   defp prepare_bucket! do
