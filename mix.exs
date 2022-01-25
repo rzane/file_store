@@ -36,7 +36,10 @@ defmodule FileStore.MixProject do
       description: "A unified interface for file storage backends.",
       maintainers: ["Ray Zane"],
       licenses: ["MIT"],
-      links: %{"GitHub" => @source_url}
+      links: %{
+        "GitHub" => @source_url,
+        "Changelog" => @source_url <> "/releases"
+      }
     ]
   end
 
