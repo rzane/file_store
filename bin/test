@@ -15,5 +15,8 @@ mix format --check-formatted
 say "\n==>> Checking for unused deps in the lockfile..."
 mix deps.unlock --check-unused
 
+say "\n==>> Running credo..."
+mix credo --all
+
 say "\n==>> Running the test suite..."
 mix test
