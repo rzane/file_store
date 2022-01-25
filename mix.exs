@@ -48,7 +48,8 @@ defmodule FileStore.MixProject do
       {:jason, ">= 0.0.0", only: [:dev, :test]},
       {:excoveralls, "~> 0.14", only: :test},
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 
