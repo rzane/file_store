@@ -117,7 +117,7 @@ To enable logging, just wrap your store with the logging middleware:
 
 ```elixir
 iex> store
-...> |> FileStore.Middleware.Logger.new(store)
+...> |> FileStore.Middleware.Logger.new()
 ...> |> FileStore.read("test.txt")
 # 02:37:30.724 [debug] READ OK key="test.txt"
 {:ok, "hello"}
