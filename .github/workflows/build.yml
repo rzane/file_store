@@ -1,24 +1,28 @@
 name: Build
 on: [push]
 jobs:
-  # Run the lint only in ubuntu since we just need to make sure everything is
-  # formatted properly.
+  # Lint should only run against the latest versions.
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     env:
       MIX_ENV: dev
     name: Lint
+    strategy:
+      matrix:
+        os: ["ubuntu-20.04"]
+        elixir: ["1.13"]
+        otp: ["24"]
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "24"
-          elixir-version: "1.13"
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
       - uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
+          key: ${{ matrix.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ matrix.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_
       - run: mix deps.get
       - run: mix deps.compile
       - run: mix format --check-formatted
@@ -27,7 +31,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: priv/plts
-          key: plts-otp24-elixir1.13
+          key: plts-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}
       - name: Dialyzer
         run: mix dialyzer
       - name: Credo
@@ -43,17 +47,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-         - ubuntu-20.04
-        elixir:
-          - "1.13"
-          - "1.12"
-          - "1.11"
-          - "1.10"
-        otp:
-          - "24"
-          - "23"
-          - "22"
+        os: ["ubuntu-20.04"]
+        elixir: ["1.13", "1.12", "1.11", "1.10"]
+        otp: ["24", "23", "22"]
     services:
       minio:
         image: rzane/minio
@@ -68,8 +64,8 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
+          key: ${{ matrix.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ matrix.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_
       - name: Dependencies
         run: mix deps.get --only test
       - name: Compile
