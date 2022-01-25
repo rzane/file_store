@@ -1,54 +1,78 @@
 name: Build
 on: [push]
 jobs:
-  build:
-    name: Elixir ${{ matrix.elixir }}
-    runs-on: ubuntu-latest
-
+  # Run the lint only in ubuntu since we just need to make sure everything is
+  # formatted properly.
+  lint:
+    runs-on: ubuntu-20.04
     env:
       MIX_ENV: test
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    strategy:
-      matrix:
-        elixir:
-          - "1.10.4"
-          - "1.11.0"
-
-    services:
-      minio:
-        image: rzane/minio
-        ports: ["9000:9000"]
-
+    name: Lint
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Elixir
-        uses: actions/setup-elixir@v1
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
         with:
-          otp-version: "22.3.4"
-          elixir-version: ${{ matrix.elixir }}
-
-      - name: Dependencies
-        run: mix deps.get
-
-      - name: Compile
-        run: mix compile --force --warnings-as-errors
-
-      - name: Check formatting
-        run: mix format --check-formatted
-
-      - name: Test
-        run: mix coveralls.github
-
+          otp-version: "24"
+          elixir-version: "1.13"
+      - uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+      - run: mix deps.get
+      - run: mix deps.compile
+      - run: mix format --check-formatted
+      - run: mix deps.unlock --check-unused
       - name: Cache dialyzer
         uses: actions/cache@v2
         with:
           path: priv/plts
           key: plts-${{ matrix.elixir }}
-
       - name: Dialyzer
         run: mix dialyzer
         env:
           MIX_ENV: dev
+  # Build phase to check against multiple versions of OTP and elixir for as
+  # much compatibility as we can stand.
+  build:
+    runs-on: ${{ matrix.os }}
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    name: Test Elixir ${{ matrix.elixir }}, OTP ${{ matrix.otp }}, OS ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+         - ubuntu-20.04
+        elixir:
+          - "1.13"
+          - "1.12"
+          - "1.11"
+          - "1.10"
+        otp:
+          - "24"
+          - "23"
+          - "22"
+    services:
+      minio:
+        image: rzane/minio
+        ports: ["9000:9000"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
+      - uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+      - name: Dependencies
+        run: mix deps.get --only test
+      - name: Compile
+        run: mix compile --force --warnings-as-errors
+      - name: Test
+        run: mix coveralls.github
