@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: priv/plts
-          key: plts-${{ matrix.elixir }}
+          key: plts-otp24-elixir1.13
       - name: Dialyzer
         run: mix dialyzer
         env:
