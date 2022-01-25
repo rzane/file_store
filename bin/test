@@ -9,8 +9,11 @@ say() {
 say "==>> Compiling..."
 mix compile --force --warnings-as-errors
 
-say "\n==>> Formatting..."
-mix format
+say "\n==>> Checking for proper formatting..."
+mix format --check-formatted
+
+say "\n==>> Checking for unused deps in the lockfile..."
+mix deps.unlock --check-unused
 
 say "\n==>> Running the test suite..."
 mix test
