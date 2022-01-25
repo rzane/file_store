@@ -28,12 +28,24 @@ defmodule FileStore.Adapters.Null do
 
     def get_public_url(_store, key, _opts), do: key
     def get_signed_url(_store, key, _opts), do: {:ok, key}
-    def stat(_store, key), do: {:ok, %Stat{key: key, size: 0, etag: Stat.checksum("")}}
+
+    def stat(_store, key) do
+      {
+        :ok,
+        %Stat{
+          key: key,
+          size: 0,
+          etag: Stat.checksum(""),
+          type: "application/octet-stream"
+        }
+      }
+    end
+
     def delete(_store, _key), do: :ok
     def delete_all(_store, _opts), do: :ok
     def upload(_store, _source, _key), do: :ok
     def download(_store, _key, _destination), do: :ok
-    def write(_store, _key, _content), do: :ok
+    def write(_store, _key, _content, _opts \\ []), do: :ok
     def read(_store, _key), do: {:ok, ""}
     def list!(_store, _opts), do: Stream.into([], [])
   end

@@ -11,15 +11,18 @@ defmodule FileStore.Stat do
 
     * `size` - The byte size of the file.
 
+    * `type` - The content-type of the file.
+
   """
 
-  @enforce_keys [:key, :size, :etag]
-  defstruct [:key, :size, :etag]
+  @enforce_keys [:key, :size, :etag, :type]
+  defstruct [:key, :size, :etag, :type]
 
   @type t :: %__MODULE__{
           key: binary,
           etag: binary,
-          size: non_neg_integer
+          size: non_neg_integer,
+          type: binary
         }
 
   @doc """

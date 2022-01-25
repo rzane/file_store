@@ -38,8 +38,8 @@ defmodule FileStore.Middleware.Prefix do
       FileStore.delete_all(store.__next__, put_prefix(opts, store))
     end
 
-    def write(store, key, content) do
-      FileStore.write(store.__next__, put_prefix(key, store), content)
+    def write(store, key, content, opts) do
+      FileStore.write(store.__next__, put_prefix(key, store), content, opts)
     end
 
     def read(store, key) do

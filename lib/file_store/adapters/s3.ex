@@ -90,7 +90,8 @@ if Code.ensure_loaded?(ExAws.S3) do
             headers = Enum.into(headers, %{})
             etag = headers |> Map.get("ETag") |> unwrap_etag()
             size = headers |> Map.get("Content-Length") |> to_integer()
-            {:ok, %Stat{key: key, etag: etag, size: size}}
+            type = headers |> Map.get("Content-Type")
+            {:ok, %Stat{key: key, etag: etag, size: size, type: type}}
 
           {:error, reason} ->
             {:error, reason}
@@ -111,9 +112,14 @@ if Code.ensure_loaded?(ExAws.S3) do
         error -> {:error, error}
       end
 
-      def write(store, key, content) do
+      def write(store, key, content, opts \\ []) do
+        opts =
+          opts
+          |> Keyword.take([:content_type, :disposition])
+          |> Utils.rename_key(:disposition, :content_disposition)
+
         store.bucket
-        |> ExAws.S3.put_object(key, content)
+        |> ExAws.S3.put_object(key, content, opts)
         |> acknowledge(store)
       end
 

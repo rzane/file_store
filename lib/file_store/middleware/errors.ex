@@ -42,9 +42,9 @@ defmodule FileStore.Middleware.Errors do
       |> wrap(action: "read stats for key", key: key)
     end
 
-    def write(store, key, content) do
+    def write(store, key, content, opts) do
       store.__next__
-      |> FileStore.write(key, content)
+      |> FileStore.write(key, content, opts)
       |> wrap(action: "write to key", key: key)
     end
 

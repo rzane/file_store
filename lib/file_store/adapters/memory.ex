@@ -89,7 +89,15 @@ defmodule FileStore.Adapters.Memory do
       |> Agent.get(&Map.fetch(&1, key))
       |> case do
         {:ok, data} ->
-          {:ok, %Stat{key: key, size: byte_size(data), etag: Stat.checksum(data)}}
+          {
+            :ok,
+            %Stat{
+              key: key,
+              size: byte_size(data),
+              etag: Stat.checksum(data),
+              type: "application/octet-stream"
+            }
+          }
 
         :error ->
           {:error, :enoent}
@@ -110,7 +118,7 @@ defmodule FileStore.Adapters.Memory do
       end)
     end
 
-    def write(store, key, content) do
+    def write(store, key, content, _opts \\ []) do
       Agent.update(store.name, &Map.put(&1, key, content))
     end
 
