@@ -32,6 +32,8 @@ jobs:
         run: mix dialyzer
         env:
           MIX_ENV: dev
+      - name: Credo
+        run: mix credo --all
   # Build phase to check against multiple versions of OTP and elixir for as
   # much compatibility as we can stand.
   build:

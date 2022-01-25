@@ -1,4 +1,6 @@
 defmodule FileStore.AdapterCase do
+  @moduledoc false
+
   use ExUnit.CaseTemplate
 
   @tmp Path.join(System.tmp_dir!(), "file_store")
