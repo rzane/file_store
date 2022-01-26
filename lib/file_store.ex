@@ -134,6 +134,32 @@ defprotocol FileStore do
   def delete_all(store, opts \\ [])
 
   @doc """
+  Copy a file to a new location.
+
+  ## Examples
+
+      iex> FileStore.copy(store, "path/foo.txt", "path/bar.txt")
+      :ok
+
+  """
+  @spec copy(t(), key(), key()) :: :ok | {:error, term()}
+  def copy(store, src, dest)
+
+  @doc """
+  Renames a file from one name to another.
+
+  **Note**: Some underlying adapters can not do this in an atomic fashion.
+
+  ## Examples
+
+      iex> FileStore.rename(store, "path/foo.txt", "path/bar.txt")
+      :ok
+
+  """
+  @spec rename(t(), key(), key()) :: :ok | {:error, term()}
+  def rename(store, src, dest)
+
+  @doc """
   Get URL for your file, assuming that the file is publicly accessible.
 
   ## Options

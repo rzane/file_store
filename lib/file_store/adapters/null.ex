@@ -47,6 +47,8 @@ defmodule FileStore.Adapters.Null do
     def download(_store, _key, _destination), do: :ok
     def write(_store, _key, _content, _opts \\ []), do: :ok
     def read(_store, _key), do: {:ok, ""}
+    def copy(_store, _src, _dest), do: :ok
+    def rename(_store, _src, _dest), do: :ok
     def list!(_store, _opts), do: Stream.into([], [])
   end
 end

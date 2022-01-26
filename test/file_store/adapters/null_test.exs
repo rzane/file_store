@@ -43,4 +43,26 @@ defmodule FileStore.Adapters.NullTest do
   test "list/0", %{store: store} do
     assert Enum.to_list(FileStore.list!(store)) == []
   end
+
+  describe "copy/3" do
+    test "copies a file", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+      assert :ok = FileStore.copy(store, "foo", "bar")
+    end
+
+    test "copies a non existing file", %{store: store} do
+      assert :ok = FileStore.copy(store, "doesnotexist.txt", "shouldnotexist.txt")
+    end
+  end
+
+  describe "rename/3" do
+    test "renames a file", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+      assert :ok = FileStore.rename(store, "foo", "bar")
+    end
+
+    test "renames non existing file", %{store: store} do
+      assert :ok = FileStore.rename(store, "doesnotexist.txt", "shouldnotexist.txt")
+    end
+  end
 end

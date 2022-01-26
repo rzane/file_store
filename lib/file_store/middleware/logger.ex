@@ -33,6 +33,18 @@ defmodule FileStore.Middleware.Logger do
       |> log("READ", key: key)
     end
 
+    def copy(store, src, dest) do
+      store.__next__
+      |> FileStore.copy(src, dest)
+      |> log("COPY", src: src, dest: dest)
+    end
+
+    def rename(store, src, dest) do
+      store.__next__
+      |> FileStore.rename(src, dest)
+      |> log("RENAME", src: src, dest: dest)
+    end
+
     def upload(store, source, key) do
       store.__next__
       |> FileStore.upload(source, key)

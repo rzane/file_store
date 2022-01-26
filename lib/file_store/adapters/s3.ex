@@ -157,6 +157,18 @@ if Code.ensure_loaded?(ExAws.S3) do
         |> Stream.map(fn file -> file.key end)
       end
 
+      def copy(store, src, dest) do
+        store.bucket
+        |> ExAws.S3.put_object_copy(dest, store.bucket, src)
+        |> acknowledge(store)
+      end
+
+      def rename(store, src, dest) do
+        with :ok <- copy(store, src, dest) do
+          delete(store, src)
+        end
+      end
+
       defp request(op, store) do
         ExAws.request(op, store.ex_aws)
       end

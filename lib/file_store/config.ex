@@ -92,6 +92,16 @@ defmodule FileStore.Config do
         FileStore.delete_all(new(), opts)
       end
 
+      @spec copy(FileStore.key(), FileStore.key()) :: :ok | {:error, term()}
+      def copy(src, dest) do
+        FileStore.copy(new(), src, dest)
+      end
+
+      @spec rename(FileStore.key(), FileStore.key()) :: :ok | {:error, term()}
+      def rename(src, dest) do
+        FileStore.rename(new(), src, dest)
+      end
+
       @spec upload(Path.t(), binary()) :: :ok | {:error, term()}
       def upload(source, key) do
         FileStore.upload(new(), source, key)

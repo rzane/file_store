@@ -114,6 +114,19 @@ defmodule FileStore.Adapters.Disk do
       store |> Disk.join(key) |> File.read()
     end
 
+    def copy(store, src, dest) do
+      with {:ok, src} <- expand(store, src),
+           {:ok, dest} <- expand(store, dest),
+           {:ok, _} <- File.copy(src, dest),
+           do: :ok
+    end
+
+    def rename(store, src, dest) do
+      with {:ok, src} <- expand(store, src),
+           {:ok, dest} <- expand(store, dest),
+           do: File.rename(src, dest)
+    end
+
     def upload(store, source, key) do
       with {:ok, dest} <- expand(store, key),
            {:ok, _} <- File.copy(source, dest),
