@@ -77,9 +77,9 @@ defmodule FileStore.Config do
         FileStore.read(new(), key)
       end
 
-      @spec write(binary(), binary()) :: :ok | {:error, term()}
-      def write(key, content) do
-        FileStore.write(new(), key, content)
+      @spec write(binary(), binary(), FileStore.write_opts()) :: :ok | {:error, term()}
+      def write(key, content, opts \\ []) do
+        FileStore.write(new(), key, content, opts)
       end
 
       @spec delete(binary()) :: :ok | {:error, term()}
