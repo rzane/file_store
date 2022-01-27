@@ -161,6 +161,52 @@ defmodule FileStore.AdapterCase do
           assert "foo/bar" in keys
         end
       end
+
+      describe "copy/3 conformance" do
+        test "copies a file", %{store: store} do
+          :ok = FileStore.write(store, "foo", "test")
+
+          assert :ok = FileStore.copy(store, "foo", "bar")
+          assert {:ok, "test"} = FileStore.read(store, "foo")
+        end
+
+        test "fails to copy a non existing file", %{store: store} do
+          assert {:error, _} = FileStore.copy(store, "foo", "bar")
+          assert {:error, _} = FileStore.stat(store, "bar")
+        end
+
+        test "copy replaces existing file", %{store: store} do
+          :ok = FileStore.write(store, "foo", "test")
+          :ok = FileStore.write(store, "bar", "i exist")
+
+          assert :ok = FileStore.copy(store, "foo", "bar")
+          assert {:ok, "test"} = FileStore.read(store, "bar")
+        end
+      end
+
+      describe "rename/3 conformance" do
+        test "renames a file", %{store: store} do
+          :ok = FileStore.write(store, "foo", "test")
+
+          assert :ok = FileStore.rename(store, "foo", "bar")
+          assert {:error, _} = FileStore.stat(store, "foo")
+          assert {:ok, _} = FileStore.stat(store, "bar")
+        end
+
+        test "fails to rename a non existing file", %{store: store} do
+          assert {:error, _} = FileStore.rename(store, "foo", "bar")
+          assert {:error, _} = FileStore.stat(store, "bar")
+        end
+
+        test "rename replaces existing file", %{store: store} do
+          :ok = FileStore.write(store, "foo", "test")
+          :ok = FileStore.write(store, "bar", "i exist")
+
+          assert :ok = FileStore.rename(store, "foo", "bar")
+          assert {:error, _} = FileStore.stat(store, "foo")
+          assert {:ok, _} = FileStore.stat(store, "bar")
+        end
+      end
     end
   end
 
