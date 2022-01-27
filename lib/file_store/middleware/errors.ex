@@ -61,13 +61,13 @@ defmodule FileStore.Middleware.Errors do
     def copy(store, src, dest) do
       store.__next__
       |> FileStore.copy(src, dest)
-      |> wrap(CopyError, action: "copy", src: src, dest: dest)
+      |> wrap(CopyError, src: src, dest: dest)
     end
 
     def rename(store, src, dest) do
       store.__next__
       |> FileStore.rename(src, dest)
-      |> wrap(RenameError, action: "rename", src: src, dest: dest)
+      |> wrap(RenameError, src: src, dest: dest)
     end
 
     def upload(store, path, key) do
