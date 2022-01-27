@@ -12,6 +12,7 @@ defmodule FileStore.AdapterCase do
   end
 
   using do
+    # credo:disable-for-this-file Credo.Check.Refactor.LongQuoteBlocks
     quote location: :keep do
       import FileStore.AdapterCase
 
