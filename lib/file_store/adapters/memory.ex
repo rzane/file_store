@@ -130,6 +130,30 @@ defmodule FileStore.Adapters.Memory do
       end)
     end
 
+    def copy(store, src, dest) do
+      Agent.get_and_update(store.name, fn state ->
+        case Map.fetch(state, src) do
+          {:ok, value} ->
+            {:ok, Map.put(state, dest, value)}
+
+          :error ->
+            {{:error, :enoent}, state}
+        end
+      end)
+    end
+
+    def rename(store, src, dest) do
+      Agent.get_and_update(store.name, fn state ->
+        case Map.fetch(state, src) do
+          {:ok, value} ->
+            {:ok, state |> Map.delete(src) |> Map.put(dest, value)}
+
+          :error ->
+            {{:error, :enoent}, state}
+        end
+      end)
+    end
+
     def upload(store, source, key) do
       with {:ok, data} <- File.read(source) do
         write(store, key, data)

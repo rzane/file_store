@@ -35,6 +35,8 @@ defmodule FileStore.Middleware.Errors do
     alias FileStore.Error
     alias FileStore.UploadError
     alias FileStore.DownloadError
+    alias FileStore.RenameError
+    alias FileStore.CopyError
 
     def stat(store, key) do
       store.__next__
@@ -52,6 +54,18 @@ defmodule FileStore.Middleware.Errors do
       store.__next__
       |> FileStore.read(key)
       |> wrap(action: "read key", key: key)
+    end
+
+    def copy(store, src, dest) do
+      store.__next__
+      |> FileStore.copy(src, dest)
+      |> wrap(CopyError, action: "copy", src: src, dest: dest)
+    end
+
+    def rename(store, src, dest) do
+      store.__next__
+      |> FileStore.rename(src, dest)
+      |> wrap(RenameError, action: "rename", src: src, dest: dest)
     end
 
     def upload(store, path, key) do

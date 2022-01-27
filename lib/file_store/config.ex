@@ -77,12 +77,12 @@ defmodule FileStore.Config do
         FileStore.read(new(), key)
       end
 
-      @spec write(binary(), binary()) :: :ok | {:error, term()}
-      def write(key, content) do
-        FileStore.write(new(), key, content)
+      @spec write(FileStore.key(), binary(), FileStore.write_opts()) :: :ok | {:error, term()}
+      def write(key, content, opts \\ []) do
+        FileStore.write(new(), key, content, opts)
       end
 
-      @spec delete(binary()) :: :ok | {:error, term()}
+      @spec delete(FileStore.key()) :: :ok | {:error, term()}
       def delete(key) do
         FileStore.delete(new(), key)
       end
@@ -92,22 +92,32 @@ defmodule FileStore.Config do
         FileStore.delete_all(new(), opts)
       end
 
+      @spec copy(FileStore.key(), FileStore.key()) :: :ok | {:error, term()}
+      def copy(src, dest) do
+        FileStore.copy(new(), src, dest)
+      end
+
+      @spec rename(FileStore.key(), FileStore.key()) :: :ok | {:error, term()}
+      def rename(src, dest) do
+        FileStore.rename(new(), src, dest)
+      end
+
       @spec upload(Path.t(), binary()) :: :ok | {:error, term()}
       def upload(source, key) do
         FileStore.upload(new(), source, key)
       end
 
-      @spec download(binary(), Path.t()) :: :ok | {:error, term()}
+      @spec download(FileStore.key(), Path.t()) :: :ok | {:error, term()}
       def download(key, destination) do
         FileStore.download(new(), key, destination)
       end
 
-      @spec get_public_url(binary(), Keyword.t()) :: binary()
+      @spec get_public_url(FileStore.key(), Keyword.t()) :: binary()
       def get_public_url(key, opts \\ []) do
         FileStore.get_public_url(new(), key, opts)
       end
 
-      @spec get_signed_url(binary(), Keyword.t()) :: {:ok, binary()} | {:error, term()}
+      @spec get_signed_url(FileStore.key(), Keyword.t()) :: {:ok, binary()} | {:error, term()}
       def get_signed_url(key, opts \\ []) do
         FileStore.get_signed_url(new(), key, opts)
       end

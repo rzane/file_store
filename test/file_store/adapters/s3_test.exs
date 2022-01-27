@@ -60,6 +60,54 @@ defmodule FileStore.Adapters.S3Test do
     end
   end
 
+  describe "copy/3" do
+    test "copies a file", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+
+      assert :ok = FileStore.copy(store, "foo", "bar")
+      assert {:ok, "test"} = FileStore.read(store, "foo")
+      assert {:ok, "test"} = FileStore.read(store, "bar")
+    end
+
+    test "fails to copy a non existing file", %{store: store} do
+      assert {:error, {:http_error, 404, _}} =
+               FileStore.copy(store, "doesnotexist.txt", "shouldnotexist.txt")
+    end
+
+    test "copy replaces existing file", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+      :ok = FileStore.write(store, "bar", "i exist")
+
+      assert :ok = FileStore.copy(store, "foo", "bar")
+      assert {:ok, "test"} = FileStore.read(store, "foo")
+      assert {:ok, "test"} = FileStore.read(store, "bar")
+    end
+  end
+
+  describe "rename/3" do
+    test "renames a file", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+
+      assert :ok = FileStore.rename(store, "foo", "bar")
+      assert {:error, _} = FileStore.stat(store, "foo")
+      assert {:ok, _} = FileStore.stat(store, "bar")
+    end
+
+    test "fails to rename a non existing file", %{store: store} do
+      assert {:error, {:http_error, 404, _}} =
+               FileStore.rename(store, "doesnotexist.txt", "shouldnotexist.txt")
+    end
+
+    test "rename replaces existing file", %{store: store} do
+      :ok = FileStore.write(store, "foo", "test")
+      :ok = FileStore.write(store, "bar", "i exist")
+
+      assert :ok = FileStore.rename(store, "foo", "bar")
+      assert {:error, _} = FileStore.stat(store, "foo")
+      assert {:ok, _} = FileStore.stat(store, "bar")
+    end
+  end
+
   defp prepare_bucket! do
     @bucket
     |> ExAws.S3.put_bucket(@region)

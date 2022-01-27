@@ -41,3 +41,23 @@ defmodule FileStore.DownloadError do
     "could not download key #{inspect(key)} to file #{inspect(path)}: #{reason}"
   end
 end
+
+defmodule FileStore.CopyError do
+  defexception [:reason, :src, :dest]
+
+  @impl true
+  def message(%{reason: reason, src: src, dest: dest}) do
+    reason = FileStore.Error.format(reason)
+    "could not copy #{inspect(src)} to #{inspect(dest)}: #{reason}"
+  end
+end
+
+defmodule FileStore.RenameError do
+  defexception [:reason, :src, :dest]
+
+  @impl true
+  def message(%{reason: reason, src: src, dest: dest}) do
+    reason = FileStore.Error.format(reason)
+    "could not rename #{inspect(src)} to #{inspect(dest)}: #{reason}"
+  end
+end
