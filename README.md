@@ -39,75 +39,29 @@ store = FileStore.Adapters.Disk.new(
 )
 ```
 
-Write a file to the store:
+Now, you can manipulate files in your store:
 
 ```elixir
-iex> FileStore.write(store, "foo", "hello world")
+iex> FileStore.upload(store, "hello.txt", "world.txt")
 :ok
-```
 
-Read a file from the store:
-
-```elixir
-iex> FileStore.read(store, "foo")
+iex> FileStore.read(store, "world.txt")
 {:ok, "hello world"}
+
+iex> FileStore.stat(store, "world.txt")
+{:ok,
+ %FileStore.Stat{
+   etag: "5eb63bbbe01eeed093cb22bb8f5acdc3",
+   key: "hello.txt",
+   size: 11,
+   type: "application/octet-stream"
+ }}
+
+iex> FileStore.get_public_url(store, "world.txt")
+"http://localhost:4000/world.txt"
 ```
 
-Get information about a file in the store:
-
-```elixir
-iex> FileStore.stat("foo")
-{:ok, %FileStore.Stat{key: "foo", ...}}
-```
-
-Upload a file to the store:
-
-```elixir
-iex> FileStore.upload(store, "/path/to/upload.txt", "bar")
-:ok
-```
-
-Download a file in the store to disk:
-
-```elixir
-iex> FileStore.download(store, "bar", "/path/to/download.txt")
-:ok
-```
-
-Get a URL for the file:
-
-```elixir
-iex> FileStore.get_public_url(store, "bar")
-"http://example.com/files/bar"
-```
-
-Get a signed URL for the file:
-
-```elixir
-iex> FileStore.get_signed_url(store, "bar")
-{:ok, "http://..."}
-```
-
-List all files:
-
-```elixir
-iex> Enum.to_list(FileStore.list!(store))
-["bar"]
-```
-
-Delete a file:
-
-```elixir
-iex> FileStore.delete(store, "bar")
-:ok
-```
-
-Delete files in bulk:
-
-```elixir
-iex> FileStore.delete_all(store, "profile/images/")
-:ok
-```
+[Click here to see all available operations.](https://hexdocs.pm/file_store/FileStore.html#summary)
 
 ## Middleware
 
