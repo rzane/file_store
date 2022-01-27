@@ -98,7 +98,7 @@ defmodule FileStore.Middleware.Errors do
 
       store.__next__
       |> FileStore.delete_all(opts)
-      |> wrap(action: action, key: opts[:prefix])
+      |> wrap(action: action, key: prefix)
     end
 
     def get_public_url(store, key, opts) do
