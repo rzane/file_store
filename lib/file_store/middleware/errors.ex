@@ -7,6 +7,8 @@ defmodule FileStore.Middleware.Errors do
     * `FileStore.Error`
     * `FileStore.UploadError`
     * `FileStore.DownloadError`
+    * `FileStore.CopyError`
+    * `FileStore.RenameError`
 
   Each of these structs contain `reason` field, where you'll find the original
   error that was returned by the underlying adapter.

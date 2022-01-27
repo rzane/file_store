@@ -139,6 +139,8 @@ One of the following structs will be returned:
 - `FileStore.Error`
 - `FileStore.UploadError`
 - `FileStore.DownloadError`
+- `FileStore.CopyError`
+- `FileStore.RenameError`
 
 Because the error implements the `Exception` behaviour, you can `raise` it.
 
