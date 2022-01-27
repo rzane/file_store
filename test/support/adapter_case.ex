@@ -15,7 +15,7 @@ defmodule FileStore.AdapterCase do
     quote location: :keep do
       import FileStore.AdapterCase
 
-      describe "write/3" do
+      describe "write/4 conformance" do
         test "writes a file", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert {:ok, "bar"} = FileStore.read(store, "foo")
@@ -30,7 +30,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "read/3" do
+      describe "read/2 conformance" do
         test "reads a file", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert {:ok, "bar"} = FileStore.read(store, "foo")
@@ -41,7 +41,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "upload/3" do
+      describe "upload/3 conformance" do
         test "uploads a file", %{store: store} do
           bar = write("bar.txt", "bar")
 
@@ -65,7 +65,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "download/3" do
+      describe "download/3 conformance" do
         test "downloads a file", %{store: store} do
           download = join("download.txt")
 
@@ -75,7 +75,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "stat/2" do
+      describe "stat/2 conformance" do
         test "retrieves file info", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert {:ok, stat} = FileStore.stat(store, "foo")
@@ -89,7 +89,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "delete/2" do
+      describe "delete/2 conformance" do
         test "deletes the file", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert :ok = FileStore.delete(store, "foo")
@@ -101,7 +101,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "delete_all/2" do
+      describe "delete_all/2 conformance" do
         test "deletes all files", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "")
           assert :ok = FileStore.write(store, "bar/buzz", "")
@@ -125,7 +125,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "get_public_url/2" do
+      describe "get_public_url/3 conformance" do
         test "returns a URL", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert url = FileStore.get_public_url(store, "foo")
@@ -133,7 +133,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "get_signed_url/3" do
+      describe "get_signed_url/3 conformance" do
         test "returns a URL", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert {:ok, url} = FileStore.get_signed_url(store, "foo")
@@ -141,7 +141,7 @@ defmodule FileStore.AdapterCase do
         end
       end
 
-      describe "list!/2" do
+      describe "list!/2 conformance" do
         test "lists keys in the store", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "")
           assert "foo" in Enum.to_list(FileStore.list!(store))
