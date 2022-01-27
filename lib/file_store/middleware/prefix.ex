@@ -3,7 +3,7 @@ defmodule FileStore.Middleware.Prefix do
   This module adds a prefix to all operations.
 
       store
-      |> FileStore.Middleware.new(prefix: "companies/logos")
+      |> FileStore.Middleware.Prefix.new(prefix: "companies/logos")
       |> FileStore.read("example.jpg")
 
   In the example above, the key `example.jpg` would become
