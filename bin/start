@@ -1,5 +1,0 @@
-#!/bin/bash
-
-set -euo pipefail
-
-docker run --name minio --rm -p 9000:9000 rzane/minio
