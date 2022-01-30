@@ -7,10 +7,21 @@ defmodule FileStore.Adapters.S3Test do
   @bucket "filestore"
   @url "http://filestore.localhost:9000/foo"
 
+  @config [
+    scheme: "http://",
+    host: "localhost",
+    port: 9000,
+    region: @region,
+    access_key_id: "development",
+    secret_access_key: "development",
+    json_codec: Jason,
+    retries: [max_attempts: 1]
+  ]
+
   setup do
     {:ok, _} = Application.ensure_all_started(:hackney)
     prepare_bucket!()
-    {:ok, store: S3.new(bucket: @bucket)}
+    {:ok, store: S3.new(bucket: @bucket, ex_aws: @config)}
   end
 
   test "get_public_url/3", %{store: store} do
@@ -63,7 +74,7 @@ defmodule FileStore.Adapters.S3Test do
   defp prepare_bucket! do
     @bucket
     |> ExAws.S3.put_bucket(@region)
-    |> ExAws.request()
+    |> ExAws.request(@config)
     |> case do
       {:ok, _} -> :ok
       {:error, {:http_error, 409, _}} -> clean_bucket!()
@@ -74,7 +85,7 @@ defmodule FileStore.Adapters.S3Test do
   defp clean_bucket! do
     @bucket
     |> ExAws.S3.delete_all_objects(list_all_keys())
-    |> ExAws.request()
+    |> ExAws.request(@config)
     |> case do
       {:ok, _} -> :ok
       {:error, reason} -> raise "Failed to clean bucket, error: #{inspect(reason)}"
@@ -84,7 +95,7 @@ defmodule FileStore.Adapters.S3Test do
   defp list_all_keys do
     @bucket
     |> ExAws.S3.list_objects()
-    |> ExAws.stream!()
+    |> ExAws.stream!(@config)
     |> Stream.map(& &1.key)
   end
 end

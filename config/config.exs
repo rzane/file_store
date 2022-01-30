@@ -2,19 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 import Config
 
-config :ex_aws,
-  json_codec: Jason,
-  access_key_id: "development",
-  secret_access_key: "development"
-
-config :ex_aws, :retries, max_attempts: 1
-
-config :ex_aws, :s3,
-  scheme: "http://",
-  host: "localhost",
-  port: 9000,
-  region: "us-east-1"
-
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
