@@ -10,4 +10,4 @@ say "==>> Installing dependencies..."
 mix deps.get
 
 say "\n==>> Starting services..."
-docker-compose up -d
+docker compose up -d --wait
