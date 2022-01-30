@@ -140,11 +140,12 @@ iex> MyApp.Storage.read("foo")
 
 ## Contributing
 
-In order to test the S3 adapter, we run Minio locally in a Docker container. To start the Minio
-service, run the following script:
+In order to run the test suite, you'll need [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/). Docker is used to run services like Minio locally, so that we can integration test the S3 adapter.
 
-    $ bin/start
+To install dependencies and start services:
 
-To run the test suite, run:
+    $ bin/setup
+
+Run the test suite:
 
     $ bin/test
