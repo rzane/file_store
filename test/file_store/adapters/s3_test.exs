@@ -19,7 +19,6 @@ defmodule FileStore.Adapters.S3Test do
   ]
 
   setup do
-    {:ok, _} = Application.ensure_all_started(:hackney)
     prepare_bucket!()
     {:ok, store: S3.new(bucket: @bucket, ex_aws: @config)}
   end
