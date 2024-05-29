@@ -46,6 +46,10 @@ defmodule FileStore.Middleware.Prefix do
       FileStore.read(store.__next__, put_prefix(key, store))
     end
 
+    def stream!(store, key, opts) do
+      FileStore.stream!(store.__next__, put_prefix(key, store), opts)
+    end
+
     def copy(store, src, dest) do
       FileStore.copy(store.__next__, put_prefix(src, store), put_prefix(dest, store))
     end

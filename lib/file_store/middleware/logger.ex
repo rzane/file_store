@@ -33,6 +33,12 @@ defmodule FileStore.Middleware.Logger do
       |> log("READ", key: key)
     end
 
+    def stream!(store, key, opts) do
+      store.__next__
+      |> FileStore.stream!(key, opts)
+      |> log!("STREAM", key: key)
+    end
+
     def copy(store, src, dest) do
       store.__next__
       |> FileStore.copy(src, dest)
@@ -100,6 +106,11 @@ defmodule FileStore.Middleware.Logger do
       end)
 
       {:error, error}
+    end
+
+    defp log!(io, msg, meta) do
+      log(:ok, msg, meta)
+      io
     end
 
     defp format_meta(meta) do

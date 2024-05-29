@@ -114,6 +114,17 @@ defmodule FileStore.Adapters.Disk do
       store |> Disk.join(key) |> File.read()
     end
 
+    def stream!(store, key, opts \\ []) do
+      path = Disk.join(store, key)
+
+      if opts[:line] do
+        File.stream!(path, :line)
+      else
+        chunk_size = opts[:chunk_size] || 2048
+        File.stream!(path, chunk_size)
+      end
+    end
+
     def copy(store, src, dest) do
       with {:ok, src} <- expand(store, src),
            {:ok, dest} <- expand(store, dest),

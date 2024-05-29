@@ -133,6 +133,23 @@ if Code.ensure_loaded?(ExAws.S3) do
         end
       end
 
+      def stream!(store, key, opts) do
+        aws_opts = Keyword.take(opts, [:chunk_size])
+
+        stream =
+          store.bucket
+          |> ExAws.S3.download_file(key, :memory, aws_opts)
+          |> ExAws.stream!()
+
+        if opts[:line] do
+          stream
+          |> Stream.chunk_while("", &chunk_by_fun/2, &to_line_stream_after_fun/1)
+          |> Stream.concat()
+        else
+          stream
+        end
+      end
+
       def upload(store, source, key) do
         source
         |> ExAws.S3.Upload.stream_file()
@@ -195,6 +212,37 @@ if Code.ensure_loaded?(ExAws.S3) do
       defp to_integer(nil), do: nil
       defp to_integer(value) when is_integer(value), do: value
       defp to_integer(value) when is_binary(value), do: String.to_integer(value)
+
+      defp chunk_by_fun(chunk, acc) do
+        to_try = acc <> chunk
+        {elements, acc} = chunk_by_newline(to_try, "\n", [], {0, byte_size(to_try)})
+        {:cont, elements, acc}
+      end
+
+      defp chunk_by_newline(_string, _newline, elements, {_offset, 0}) do
+        {Enum.reverse(elements), ""}
+      end
+
+      defp chunk_by_newline(string, newline, elements, {offset, length}) do
+        case :binary.match(string, newline, scope: {offset, length}) do
+          {newline_offset, newline_length} ->
+            difference = newline_length + newline_offset - offset
+            element = binary_part(string, offset, difference)
+
+            chunk_by_newline(
+              string,
+              newline,
+              [element | elements],
+              {newline_offset + newline_length, length - difference}
+            )
+
+          :nomatch ->
+            {Enum.reverse(elements), binary_part(string, offset, length)}
+        end
+      end
+
+      defp to_line_stream_after_fun(""), do: {:cont, []}
+      defp to_line_stream_after_fun(acc), do: {:cont, [acc], []}
     end
   end
 end

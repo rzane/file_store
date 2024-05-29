@@ -58,6 +58,10 @@ defmodule FileStore.Middleware.Errors do
       |> wrap(action: "read key", key: key)
     end
 
+    def stream!(store, key, opts) do
+      FileStore.stream!(store.__next__, key, opts)
+    end
+
     def copy(store, src, dest) do
       store.__next__
       |> FileStore.copy(src, dest)

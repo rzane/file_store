@@ -208,6 +208,52 @@ defmodule FileStore.AdapterCase do
           assert {:ok, _} = FileStore.stat(store, "bar")
         end
       end
+
+      describe "stream!/3" do
+        test "the file exists and is chunked perfectly", %{store: store} do
+          chunks = Enum.map(~w(a b c d e f g h i j k l m n o), &String.duplicate(&1, 32))
+          data = Enum.join(chunks, "")
+
+          :ok = FileStore.write(store, "foo", data)
+
+          assert stream = FileStore.stream!(store, "foo", chunk_size: 32)
+          assert chunks == Enum.to_list(stream)
+        end
+
+        test "file exists but the chunk has a last chunk that is not full", %{store: store} do
+          chunks = Enum.map(~w(a b c d e f g h i j k l m n), &String.duplicate(&1, 32))
+          chunks = chunks ++ ["oooooooo"]
+          data = Enum.join(chunks, "")
+
+          :ok = FileStore.write(store, "foo", data)
+
+          assert stream = FileStore.stream!(store, "foo", chunk_size: 32)
+          assert chunks == Enum.to_list(stream)
+        end
+
+        test "file exists but we want to stream by line", %{store: store} do
+          lines =
+            Enum.map(~w(a b c d e f g h i j k l m n o), fn char ->
+              String.duplicate(char, 32) <> "\n"
+            end)
+
+          data = Enum.join(lines, "")
+
+          :ok = FileStore.write(store, "foo", data)
+
+          assert stream = FileStore.stream!(store, "foo", line: true)
+          assert lines == Enum.to_list(stream)
+        end
+
+        test "file does not have a newline in it", %{store: store} do
+          data = String.duplicate("a", 32)
+
+          :ok = FileStore.write(store, "foo", data)
+
+          assert stream = FileStore.stream!(store, "foo", line: true)
+          assert [data] == Enum.to_list(stream)
+        end
+      end
     end
   end
 

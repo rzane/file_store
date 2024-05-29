@@ -130,6 +130,29 @@ defmodule FileStore.Adapters.Memory do
       end)
     end
 
+    def stream!(store, key, opts \\ []) do
+      Agent.get(store.name, fn state ->
+        case Map.fetch(state, key) do
+          :error ->
+            raise FileStore.Error, reason: "file does not exist", key: key, action: "stream"
+
+          {:ok, data} ->
+            do_stream!(data, opts)
+        end
+      end)
+    end
+
+    defp do_stream!(data, opts) do
+      {:ok, stream} = StringIO.open(data)
+
+      if opts[:line] do
+        IO.binstream(stream, :line)
+      else
+        chunk_size = opts[:chunk_size] || 2048
+        IO.binstream(stream, chunk_size)
+      end
+    end
+
     def copy(store, src, dest) do
       Agent.get_and_update(store.name, fn state ->
         case Map.fetch(state, src) do

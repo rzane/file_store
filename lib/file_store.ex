@@ -16,24 +16,33 @@ defprotocol FileStore do
   it's usage.
   """
 
+  @typedoc "The file key."
   @type key :: binary()
-  @type list_opts :: [{:prefix, binary()}]
-  @type delete_all_opts :: [{:prefix, binary()}]
-  @type write_opts :: [
-          {:content_type, binary()}
-          | {:disposition, binary()}
-        ]
 
-  @type public_url_opts :: [
-          {:content_type, binary()}
-          | {:disposition, binary()}
-        ]
+  @typedoc "The prefix path option."
+  @type prefix_opt :: {:prefix, binary()}
 
-  @type signed_url_opts :: [
-          {:content_type, binary()}
-          | {:disposition, binary()}
-          | {:expires_in, integer()}
-        ]
+  @typedoc "The file content disposition hint for the adapter."
+  @type disposition_opt :: {:disposition, binary()}
+
+  @typedoc "The file content type hint for the adapter."
+  @type content_type_opt :: {:content_type, binary()}
+
+  @typedoc "The number of seconds the URL will expire in."
+  @type expires_in_opt :: {:expires_in, integer()}
+
+  @typedoc "The number of bytes to chunk a stream with."
+  @type chunk_size_opt :: {:chunk_size, pos_integer()}
+
+  @typedoc "Streams a file line by line."
+  @type line_opt :: {:line, boolean()}
+
+  @type list_opts :: [prefix_opt()]
+  @type delete_all_opts :: [prefix_opt()]
+  @type write_opts :: [content_type_opt() | disposition_opt()]
+  @type public_url_opts :: [content_type_opt() | disposition_opt()]
+  @type signed_url_opts :: [content_type_opt() | disposition_opt() | expires_in_opt()]
+  @type stream_opts :: [chunk_size_opt() | line_opt()]
 
   @doc """
   Write a file to the store. If a file with the given `key`
@@ -64,6 +73,19 @@ defprotocol FileStore do
   """
   @spec read(t, key) :: {:ok, binary} | {:error, term}
   def read(store, key)
+
+  @doc """
+  Stream the file from from the store.
+
+  ## Options
+
+  * `:chunk_size` - The number of bytes for each chunk of data. It can not be
+    specified with `:line`.
+  * `:line` - Streams the file line by line. It can not be specified with
+    `:chunk_size`.
+  """
+  @spec stream!(t, key, stream_opts) :: Enumerable.t()
+  def stream!(store, key, opts \\ [])
 
   @doc """
   Upload a file to the store. If a file with the given `key`
