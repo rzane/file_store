@@ -130,7 +130,7 @@ defmodule FileStore.AdapterCase do
         test "returns a URL", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert url = FileStore.get_public_url(store, "foo")
-          assert is_valid_url(url)
+          assert valid_url?(url)
         end
       end
 
@@ -138,7 +138,7 @@ defmodule FileStore.AdapterCase do
         test "returns a URL", %{store: store} do
           assert :ok = FileStore.write(store, "foo", "bar")
           assert {:ok, url} = FileStore.get_signed_url(store, "foo")
-          assert is_valid_url(url)
+          assert valid_url?(url)
         end
       end
 
@@ -221,7 +221,7 @@ defmodule FileStore.AdapterCase do
     path
   end
 
-  def is_valid_url(value) do
+  def valid_url?(value) do
     case URI.parse(value) do
       %URI{scheme: nil} -> false
       %URI{host: nil} -> false

@@ -34,7 +34,7 @@ defmodule FileStore.Stat do
       "5eb63bbbe01eeed093cb22bb8f5acdc3"
 
   """
-  @spec checksum(binary | Enum.t()) :: binary
+  @spec checksum(binary | Enumerable.t()) :: binary
   def checksum(data) when is_binary(data) do
     :md5
     |> :crypto.hash(data)
@@ -64,8 +64,17 @@ defmodule FileStore.Stat do
   """
   @spec checksum_file(Path.t()) :: {:ok, binary} | {:error, File.posix()}
   def checksum_file(path) do
-    {:ok, path |> File.stream!([], 2_048) |> checksum()}
+    {:ok, path |> stream!() |> checksum()}
   rescue
     e in [File.Error] -> {:error, e.reason}
+  end
+
+  # In v1.16 `File.stream!/3` changed the ordering of its parameters. In order
+  # to avoid any deprecation warnings going forward, we need to flip out the
+  # implementation.
+  if Version.compare(System.version(), "1.16.0") in [:gt, :eq] do
+    defp stream!(path), do: File.stream!(path, 2048, [])
+  else
+    defp stream!(path), do: File.stream!(path, [], 2048)
   end
 end
