@@ -127,7 +127,7 @@ defmodule FileStore.Adapters.Disk do
            do: File.rename(src, dest)
     end
 
-    def upload(store, source, key) do
+    def upload(store, source, key, _opts \\ []) do
       with {:ok, dest} <- expand(store, key),
            {:ok, _} <- File.copy(source, dest),
            do: :ok

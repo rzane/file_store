@@ -16,23 +16,34 @@ defprotocol FileStore do
   it's usage.
   """
 
-  @type key :: binary()
-  @type list_opts :: [{:prefix, binary()}]
-  @type delete_all_opts :: [{:prefix, binary()}]
+  @type key :: String.t()
+
+  @type prefix_opt :: {:prefix, String.t()}
+  @type content_type_opt :: {:content_type, String.t()}
+  @type disposition_opt :: {:disposition, String.t()}
+  @type expires_in_opt :: {:expires_in, pos_integer()}
+
+  @type list_opts :: [prefix_opt()]
+  @type delete_all_opts :: [prefix_opt()]
   @type write_opts :: [
-          {:content_type, binary()}
-          | {:disposition, binary()}
+          content_type_opt()
+          | disposition_opt()
+        ]
+
+  @type upload_opts :: [
+          content_type_opt()
+          | disposition_opt()
         ]
 
   @type public_url_opts :: [
-          {:content_type, binary()}
-          | {:disposition, binary()}
+          content_type_opt()
+          | disposition_opt()
         ]
 
   @type signed_url_opts :: [
-          {:content_type, binary()}
-          | {:disposition, binary()}
-          | {:expires_in, integer()}
+          content_type_opt()
+          | disposition_opt()
+          | expires_in_opt()
         ]
 
   @doc """
@@ -50,7 +61,12 @@ defprotocol FileStore do
       :ok
 
   """
-  @spec write(t, key, binary, write_opts) :: :ok | {:error, term}
+  @spec write(
+          store :: t(),
+          key :: key(),
+          content :: binary(),
+          opts :: write_opts()
+        ) :: :ok | {:error, term()}
   def write(store, key, content, opts \\ [])
 
   @doc """
@@ -62,7 +78,7 @@ defprotocol FileStore do
       {:ok, "hello world"}
 
   """
-  @spec read(t, key) :: {:ok, binary} | {:error, term}
+  @spec read(store :: t(), key :: key()) :: {:ok, binary()} | {:error, term()}
   def read(store, key)
 
   @doc """
@@ -75,8 +91,13 @@ defprotocol FileStore do
       :ok
 
   """
-  @spec upload(t, Path.t(), key) :: :ok | {:error, term}
-  def upload(store, source, key)
+  @spec upload(
+          store :: t(),
+          source :: Path.t(),
+          key :: key(),
+          opts :: upload_opts()
+        ) :: :ok | {:error, term()}
+  def upload(store, source, key, opts \\ [])
 
   @doc """
   Download a file from the store and save it to the given `path`.
@@ -87,7 +108,11 @@ defprotocol FileStore do
       :ok
 
   """
-  @spec download(t, key, Path.t()) :: :ok | {:error, term}
+  @spec download(
+          store :: t(),
+          key :: key(),
+          destination :: Path.t()
+        ) :: :ok | {:error, term()}
   def download(store, key, destination)
 
   @doc """
@@ -99,7 +124,7 @@ defprotocol FileStore do
       {:ok, %FileStore.Stat{key: "foo", etag: "2e5pd429", size: 24}}
 
   """
-  @spec stat(t, key) :: {:ok, FileStore.Stat.t()} | {:error, term}
+  @spec stat(store :: t(), key :: key()) :: {:ok, FileStore.Stat.t()} | {:error, term()}
   def stat(store, key)
 
   @doc """
@@ -111,7 +136,7 @@ defprotocol FileStore do
     :ok
 
   """
-  @spec delete(t, key) :: :ok | {:error, term}
+  @spec delete(store :: t(), key :: key()) :: :ok | {:error, term()}
   def delete(store, key)
 
   @doc """
@@ -130,7 +155,7 @@ defprotocol FileStore do
     :ok
 
   """
-  @spec delete_all(t, delete_all_opts) :: :ok | {:error, term}
+  @spec delete_all(store :: t(), opts :: delete_all_opts()) :: :ok | {:error, term()}
   def delete_all(store, opts \\ [])
 
   @doc """
@@ -142,7 +167,7 @@ defprotocol FileStore do
       :ok
 
   """
-  @spec copy(t(), key(), key()) :: :ok | {:error, term()}
+  @spec copy(store :: t(), src :: key(), dest :: key()) :: :ok | {:error, term()}
   def copy(store, src, dest)
 
   @doc """
@@ -156,7 +181,7 @@ defprotocol FileStore do
       :ok
 
   """
-  @spec rename(t(), key(), key()) :: :ok | {:error, term()}
+  @spec rename(strore :: t(), src :: key(), dest :: key()) :: :ok | {:error, term()}
   def rename(store, src, dest)
 
   @doc """
@@ -173,7 +198,7 @@ defprotocol FileStore do
       "https://mybucket.s3-us-east-1.amazonaws.com/foo"
 
   """
-  @spec get_public_url(t, key, public_url_opts) :: binary
+  @spec get_public_url(strore :: t(), key :: key(), opts :: public_url_opts()) :: String.t()
   def get_public_url(store, key, opts \\ [])
 
   @doc """
@@ -192,7 +217,11 @@ defprotocol FileStore do
       {:ok, "https://s3.amazonaws.com/mybucket/foo?X-AMZ-Expires=3600&..."}
 
   """
-  @spec get_signed_url(t, key, signed_url_opts) :: {:ok, binary} | {:error, term}
+  @spec get_signed_url(
+          store :: t(),
+          key :: key(),
+          opts :: signed_url_opts()
+        ) :: {:ok, binary()} | {:error, term()}
   def get_signed_url(store, key, opts \\ [])
 
   @doc """
@@ -211,6 +240,6 @@ defprotocol FileStore do
       ["foo/bar"]
 
   """
-  @spec list!(t, list_opts) :: Enumerable.t()
+  @spec list!(store :: t(), opts :: list_opts()) :: Enumerable.t()
   def list!(store, opts \\ [])
 end

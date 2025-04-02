@@ -70,9 +70,9 @@ defmodule FileStore.Middleware.Errors do
       |> wrap(RenameError, src: src, dest: dest)
     end
 
-    def upload(store, path, key) do
+    def upload(store, path, key, opts) do
       store.__next__
-      |> FileStore.upload(path, key)
+      |> FileStore.upload(path, key, opts)
       |> wrap(UploadError, path: path, key: key)
     end
 

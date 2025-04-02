@@ -54,8 +54,8 @@ defmodule FileStore.Middleware.Prefix do
       FileStore.rename(store.__next__, put_prefix(src, store), put_prefix(dest, store))
     end
 
-    def upload(store, source, key) do
-      FileStore.upload(store.__next__, source, put_prefix(key, store))
+    def upload(store, source, key, opts) do
+      FileStore.upload(store.__next__, source, put_prefix(key, store), opts)
     end
 
     def download(store, key, dest) do
