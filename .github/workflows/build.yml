@@ -9,12 +9,12 @@ jobs:
       MIX_ENV: dev
     strategy:
       matrix:
-        os: ["ubuntu-20.04"]
-        elixir: ["1.16"]
-        otp: ["26"]
+        os: ["ubuntu-latest"]
+        elixir: ["1.18"]
+        otp: ["27"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Elixir
         uses: erlef/setup-beam@v1
@@ -23,7 +23,7 @@ jobs:
           elixir-version: ${{ matrix.elixir }}
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: deps
           key: ${{ matrix.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_${{ hashFiles('**/mix.lock') }}
@@ -39,7 +39,7 @@ jobs:
         run: mix deps.unlock --check-unused
 
       - name: Cache dialyzer
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: priv/plts
           key: plts-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}
@@ -61,12 +61,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-20.04"]
-        elixir: ["1.16", "1.15", "1.14"]
-        otp: ["26", "25", "24"]
+        os: ["ubuntu-latest"]
+        elixir: ["1.18", "1.17", "1.16", "1.15"]
+        otp: ["27", "26", "25"]
+        exclude:
+          - elixir: "1.15"
+            otp: "27"
+          - elixir: "1.16"
+            otp: "27"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Start services
         run: docker compose up -d --wait
@@ -78,7 +83,7 @@ jobs:
           elixir-version: ${{ matrix.elixir }}
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: deps
           key: ${{ matrix.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_${{ hashFiles('**/mix.lock') }}
