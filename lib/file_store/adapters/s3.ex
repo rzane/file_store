@@ -133,10 +133,15 @@ if Code.ensure_loaded?(ExAws.S3) do
         end
       end
 
-      def upload(store, source, key) do
+      def upload(store, source, key, opts \\ []) do
+        opts =
+          opts
+          |> Keyword.take([:content_type, :disposition])
+          |> Utils.rename_key(:disposition, :content_disposition)
+
         source
         |> ExAws.S3.Upload.stream_file()
-        |> ExAws.S3.upload(store.bucket, key)
+        |> ExAws.S3.upload(store.bucket, key, opts)
         |> acknowledge(store)
       rescue
         error in [File.Error] -> {:error, error.reason}

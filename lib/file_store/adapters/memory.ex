@@ -154,7 +154,7 @@ defmodule FileStore.Adapters.Memory do
       end)
     end
 
-    def upload(store, source, key) do
+    def upload(store, source, key, _opts \\ []) do
       with {:ok, data} <- File.read(source) do
         write(store, key, data)
       end

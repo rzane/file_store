@@ -45,9 +45,9 @@ defmodule FileStore.Middleware.Logger do
       |> log("RENAME", src: src, dest: dest)
     end
 
-    def upload(store, source, key) do
+    def upload(store, source, key, opts) do
       store.__next__
-      |> FileStore.upload(source, key)
+      |> FileStore.upload(source, key, opts)
       |> log("UPLOAD", key: key)
     end
 
